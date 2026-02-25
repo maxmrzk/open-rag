@@ -1,0 +1,49 @@
+# syntax=docker/dockerfile:1.7
+# ──────────────────────────────────────────────────────────────────────────────
+# Stage 1 — install dependencies with uv into an isolated venv
+# ──────────────────────────────────────────────────────────────────────────────
+FROM python:3.11-slim AS builder
+
+# Install uv (pinned for reproducibility)
+COPY --from=ghcr.io/astral-sh/uv:0.5.13 /uv /uvx /usr/local/bin/
+
+WORKDIR /app
+
+# Copy dependency manifests first — maximise layer cache
+COPY pyproject.toml uv.lock ./
+
+# Sync only production deps (no dev extras); use the lockfile exactly
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Stage 2 — lean runtime image
+# ──────────────────────────────────────────────────────────────────────────────
+FROM python:3.11-slim AS runtime
+
+# Create a non-root user for security
+RUN useradd --create-home --shell /bin/bash app
+
+WORKDIR /app
+
+# Copy the venv from the builder stage
+COPY --from=builder /app/.venv /app/.venv
+
+# Ensure venv binaries are on PATH
+ENV PATH="/app/.venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Copy application source
+COPY --chown=app:app . .
+
+USER app
+
+# Health check — FastAPI exposes /api/v1/health
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"
+
+# Default: run the API server.
+# The docker-compose worker service overrides this with:
+#   command: arq app.worker.WorkerSettings
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

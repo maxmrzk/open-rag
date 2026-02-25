@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "types": ["node", "vitest/globals", "@testing-library/jest-dom"]
+  }
+}

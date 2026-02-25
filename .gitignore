@@ -1,0 +1,91 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Python
+# ─────────────────────────────────────────────────────────────────────────────
+backend/.venv
+backend/__pycache__
+backend/*.py[cod]
+backend/*$py.class
+backend/*.so
+backend/.Python
+backend/build
+backend/develop-eggs
+backend/dist
+backend/downloads
+backend/eggs
+backend/.eggs
+backend/lib
+backend/lib64
+backend/parts
+backend/sdist
+backend/var
+backend/wheels
+backend/pip-wheel-metadata
+backend/share/python-wheels
+backend/*.egg-info
+backend/.installed.cfg
+backend/*.egg
+backend/MANIFEST
+
+# pytest
+backend/.pytest_cache
+backend/.coverage
+backend/coverage.xml
+backend/htmlcov
+backend/.ruff_cache
+
+# Alembic
+backend/alembic/versions/__pycache__
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Node / pnpm
+# ─────────────────────────────────────────────────────────────────────────────
+frontend/node_modules
+frontend/dist
+frontend/build
+frontend/.turbo
+pnpm-workspace.yaml
+
+# ─────────────────────────────────────────────────────────────────────────────
+# IDE / Editor
+# ─────────────────────────────────────────────────────────────────────────────
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.vim
+.netrwhist
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Environment variables (NEVER commit secrets)
+# .env files at root should never be committed. .env files in subdirectories
+# should be committed only if they contain development defaults (no secrets).
+# ─────────────────────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Logs
+# ─────────────────────────────────────────────────────────────────────────────
+*.log
+logs
+
+# ─────────────────────────────────────────────────────────────────────────────
+# OS
+# ─────────────────────────────────────────────────────────────────────────────
+Thumbs.db
+.DS_Store
+ehthumbs.db
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Docker / container artifacts
+# ─────────────────────────────────────────────────────────────────────────────
+.dockerignore
+docker-compose.override.yml
