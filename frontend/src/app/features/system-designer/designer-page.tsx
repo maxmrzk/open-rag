@@ -115,8 +115,7 @@ function CanvasDropZone({ onDropNode }: CanvasDropZoneProps) {
   const { screenToFlowPosition } = useReactFlow();
 
   const { isDraggingFromPalette } = useDragLayer((monitor) => ({
-    isDraggingFromPalette:
-      monitor.isDragging() && monitor.getItemType() === PALETTE_DND_TYPE,
+    isDraggingFromPalette: monitor.isDragging() && monitor.getItemType() === PALETTE_DND_TYPE,
   }));
 
   const [{ isOver, canDrop }, drop] = useDrop<
@@ -143,9 +142,7 @@ function CanvasDropZone({ onDropNode }: CanvasDropZoneProps) {
       style={{ pointerEvents: isDraggingFromPalette ? "all" : "none" }}
       className={[
         "absolute inset-0 z-10 transition-all duration-150",
-        isOver && canDrop
-          ? "ring-2 ring-inset ring-indigo-500/40 bg-indigo-500/5"
-          : "",
+        isOver && canDrop ? "ring-2 ring-inset ring-indigo-500/40 bg-indigo-500/5" : "",
       ].join(" ")}
     >
       {isOver && canDrop && (
@@ -216,8 +213,7 @@ function DesignerContent() {
   // ── Run System ──────────────────────────────────────────────────────────────
 
   const { mutate: startRun } = useMutation({
-    mutationFn: () =>
-      apiClient.post(`/systems/${system?.id}/runs`, {}),
+    mutationFn: () => apiClient.post(`/systems/${system?.id}/runs`, {}),
     onSuccess: () => {
       toast.success("Evaluation run started");
       queryClient.invalidateQueries({ queryKey: ["runs", system?.id] });
@@ -257,8 +253,14 @@ function DesignerContent() {
     const onKeyDown = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;
       if (!mod) return;
-      if (e.key === "z" && !e.shiftKey) { e.preventDefault(); handleUndo(); }
-      if (e.key === "y" || (e.key === "z" && e.shiftKey)) { e.preventDefault(); handleRedo(); }
+      if (e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      }
+      if (e.key === "y" || (e.key === "z" && e.shiftKey)) {
+        e.preventDefault();
+        handleRedo();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -358,11 +360,7 @@ function DesignerContent() {
   }, []);
 
   const handleSaveConfig = useCallback(
-    (
-      nodeId: string,
-      config: Record<string, unknown>,
-      codeComponentId?: string
-    ) => {
+    (nodeId: string, config: Record<string, unknown>, codeComponentId?: string) => {
       pushHistory({ nodes, edges });
       const updatedNodes = nodes.map((n) =>
         n.id === nodeId
@@ -371,9 +369,7 @@ function DesignerContent() {
               data: {
                 ...n.data,
                 config,
-                ...(codeComponentId !== undefined
-                  ? { codeComponentId }
-                  : {}),
+                ...(codeComponentId !== undefined ? { codeComponentId } : {}),
               },
             }
           : n
@@ -412,9 +408,7 @@ function DesignerContent() {
     }));
 
     // Collect referenced components
-    const usedComponentIds = new Set(
-      systemNodes.map((n) => n.codeComponentId).filter(Boolean)
-    );
+    const usedComponentIds = new Set(systemNodes.map((n) => n.codeComponentId).filter(Boolean));
     const usedComponents = components.filter((c) => usedComponentIds.has(c.id));
 
     const exportData: SystemExport = {
@@ -434,9 +428,7 @@ function DesignerContent() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${(system?.name ?? "rag-system")
-      .toLowerCase()
-      .replace(/\s+/g, "-")}-export.json`;
+    a.download = `${(system?.name ?? "rag-system").toLowerCase().replace(/\s+/g, "-")}-export.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("System exported as JSON");
@@ -476,7 +468,6 @@ function DesignerContent() {
   return (
     <div className="flex h-full">
       <div className="flex-1 flex flex-col min-w-0">
-
         {/* Top bar */}
         <div className="h-12 border-b border-[#21262d] bg-[#0d1117] flex items-center justify-between px-4 shrink-0 gap-2">
           <div className="flex items-center gap-3 min-w-0">
@@ -595,12 +586,7 @@ function DesignerContent() {
             deleteKeyCode={["Delete", "Backspace"]}
           >
             <Controls className="!bg-[#0d1117] !border-[#21262d] !rounded-lg [&>button]:!bg-[#0d1117] [&>button]:!border-[#21262d] [&>button]:!text-[#8b949e] [&>button:hover]:!bg-[#161b22]" />
-            <Background
-              variant={BackgroundVariant.Dots}
-              gap={20}
-              size={1}
-              color="#21262d"
-            />
+            <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#21262d" />
           </ReactFlow>
         </div>
       </div>
@@ -613,9 +599,7 @@ function DesignerContent() {
         />
       )}
 
-      {showDockerModal && (
-        <DockerExportModal onClose={() => setShowDockerModal(false)} />
-      )}
+      {showDockerModal && <DockerExportModal onClose={() => setShowDockerModal(false)} />}
 
       {/* Save icon hint */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 text-[10px] text-[#484f58] pointer-events-none select-none">

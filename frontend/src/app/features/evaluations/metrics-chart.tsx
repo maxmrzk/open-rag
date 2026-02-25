@@ -51,15 +51,8 @@ export function MetricsComparisonChart({ runs }: MetricsComparisonChartProps) {
         <ResponsiveContainer width="100%" height={280}>
           <RadarChart data={radarData}>
             <PolarGrid stroke="#21262d" />
-            <PolarAngleAxis
-              dataKey="metric"
-              tick={{ fill: "#8b949e", fontSize: 11 }}
-            />
-            <PolarRadiusAxis
-              angle={90}
-              domain={[0, 1]}
-              tick={{ fill: "#484f58", fontSize: 10 }}
-            />
+            <PolarAngleAxis dataKey="metric" tick={{ fill: "#8b949e", fontSize: 11 }} />
+            <PolarRadiusAxis angle={90} domain={[0, 1]} tick={{ fill: "#484f58", fontSize: 10 }} />
             {runs.map((run, i) => (
               <Radar
                 key={run.id}
@@ -71,9 +64,7 @@ export function MetricsComparisonChart({ runs }: MetricsComparisonChartProps) {
                 strokeWidth={2}
               />
             ))}
-            <Legend
-              wrapperStyle={{ fontSize: 11, color: "#8b949e" }}
-            />
+            <Legend wrapperStyle={{ fontSize: 11, color: "#8b949e" }} />
           </RadarChart>
         </ResponsiveContainer>
       </div>
@@ -91,10 +82,7 @@ export function MetricsComparisonChart({ runs }: MetricsComparisonChartProps) {
               tick={{ fill: "#8b949e", fontSize: 10 }}
               axisLine={{ stroke: "#21262d" }}
             />
-            <YAxis
-              tick={{ fill: "#8b949e", fontSize: 10 }}
-              axisLine={{ stroke: "#21262d" }}
-            />
+            <YAxis tick={{ fill: "#8b949e", fontSize: 10 }} axisLine={{ stroke: "#21262d" }} />
             <Tooltip
               contentStyle={{
                 backgroundColor: "#0d1117",
@@ -106,9 +94,7 @@ export function MetricsComparisonChart({ runs }: MetricsComparisonChartProps) {
             />
             <Bar dataKey="latency" name="Latency (ms)" fill="#818cf8" radius={[4, 4, 0, 0]} />
             <Bar dataKey="hallucination" name="Halluc. (%)" fill="#f472b6" radius={[4, 4, 0, 0]} />
-            <Legend
-              wrapperStyle={{ fontSize: 11, color: "#8b949e" }}
-            />
+            <Legend wrapperStyle={{ fontSize: 11, color: "#8b949e" }} />
           </BarChart>
         </ResponsiveContainer>
       </div>

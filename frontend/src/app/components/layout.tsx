@@ -25,8 +25,7 @@ function DemoBanner() {
       <div className="flex items-center gap-2">
         <Zap className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
         <span className="text-[11px] text-indigo-300">
-          You're viewing the{" "}
-          <span className="text-indigo-200 font-medium">demo instance</span> —
+          You're viewing the <span className="text-indigo-200 font-medium">demo instance</span> —
           all data is mock, nothing is persisted.
         </span>
       </div>

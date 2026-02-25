@@ -33,10 +33,7 @@ export function EvaluationsPage() {
   const [sortField, setSortField] = useState<string>("createdAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
-  const completedRuns = useMemo(
-    () => (runs || []).filter((r) => r.status === "completed"),
-    [runs]
-  );
+  const completedRuns = useMemo(() => (runs || []).filter((r) => r.status === "completed"), [runs]);
 
   const sortedRuns = useMemo(() => {
     const sorted = [...(runs || [])].sort((a, b) => {
@@ -123,9 +120,7 @@ export function EvaluationsPage() {
                   >
                     <div className="flex items-center gap-1">
                       {label}
-                      {sortField === key && (
-                        <ArrowUpDown className="w-3 h-3" />
-                      )}
+                      {sortField === key && <ArrowUpDown className="w-3 h-3" />}
                     </div>
                   </th>
                 ))}
@@ -135,9 +130,7 @@ export function EvaluationsPage() {
                 >
                   <div className="flex items-center gap-1">
                     Date
-                    {sortField === "createdAt" && (
-                      <ArrowUpDown className="w-3 h-3" />
-                    )}
+                    {sortField === "createdAt" && <ArrowUpDown className="w-3 h-3" />}
                   </div>
                 </th>
               </tr>
@@ -171,7 +164,9 @@ export function EvaluationsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] ${status.bg} ${status.color}`}>
+                      <div
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] ${status.bg} ${status.color}`}
+                      >
                         <StatusIcon className="w-3 h-3" />
                         {run.status}
                       </div>

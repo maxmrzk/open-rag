@@ -38,9 +38,7 @@ export function AppSidebar() {
         </button>
         <div className="min-w-0">
           <div className="text-[13px] text-white tracking-tight">RAG Builder</div>
-          <div className="text-[10px] text-[#8b949e] tracking-wide uppercase">
-            System Studio
-          </div>
+          <div className="text-[10px] text-[#8b949e] tracking-wide uppercase">System Studio</div>
         </div>
       </div>
 
@@ -108,8 +106,7 @@ export function AppSidebar() {
           v0.2.0 · Dev Preview
         </div>
         <div className="text-[10px] text-[#484f58]">
-          Python runs{" "}
-          <span className="text-amber-400">locally / self-hosted</span>
+          Python runs <span className="text-amber-400">locally / self-hosted</span>
           <br />
           Code is never sent to any server
         </div>

@@ -1,7 +1,6 @@
 """Service layer for Evaluation Run operations."""
 
 import uuid
-from typing import Optional
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -53,7 +52,7 @@ async def list_runs(
     return [_run_to_dict(r) for r in runs], total
 
 
-async def get_run(db: AsyncSession, run_id: uuid.UUID) -> Optional[dict]:
+async def get_run(db: AsyncSession, run_id: uuid.UUID) -> dict | None:
     result = await db.execute(select(EvaluationRun).where(EvaluationRun.id == run_id))
     run = result.scalar_one_or_none()
     if run is None:
@@ -61,7 +60,7 @@ async def get_run(db: AsyncSession, run_id: uuid.UUID) -> Optional[dict]:
     return _run_to_dict(run)
 
 
-async def create_run(db: AsyncSession, system_id: uuid.UUID) -> Optional[dict]:
+async def create_run(db: AsyncSession, system_id: uuid.UUID) -> dict | None:
     """Create a new evaluation run and enqueue a background job."""
     from sqlalchemy.orm import selectinload
 
@@ -91,9 +90,11 @@ async def create_run(db: AsyncSession, system_id: uuid.UUID) -> Optional[dict]:
 
     # Enqueue background job (best-effort — don't fail the HTTP response if Redis is down)
     try:
+        import urllib.parse
+
         from arq import create_pool
         from arq.connections import RedisSettings
-        import urllib.parse
+
         from app.core.config import get_settings
 
         settings = get_settings()

@@ -1,14 +1,11 @@
 """Tests for service-layer pure functions (no DB required)."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import MagicMock
-
-import pytest
 
 from app.services.runs import _run_to_dict
 from app.services.systems import _system_to_dict
-
 
 # ---------------------------------------------------------------------------
 # _run_to_dict
@@ -23,7 +20,7 @@ def _make_run(**kwargs):
     run.system_name = kwargs.get("system_name", "Test System")
     run.status = kwargs.get("status", "running")
     run.config_snapshot = kwargs.get("config_snapshot", {})
-    run.created_at = kwargs.get("created_at", datetime.now(timezone.utc))
+    run.created_at = kwargs.get("created_at", datetime.now(UTC))
     # Metric fields default to None (as they are in DB for running runs)
     run.metric_precision = kwargs.get("metric_precision", None)
     run.metric_recall = kwargs.get("metric_recall", None)
@@ -121,8 +118,8 @@ def _make_system(nodes=None, edges=None):
     s.project_id = uuid.uuid4()
     s.name = "My RAG System"
     s.version = 3
-    s.created_at = datetime.now(timezone.utc)
-    s.updated_at = datetime.now(timezone.utc)
+    s.created_at = datetime.now(UTC)
+    s.updated_at = datetime.now(UTC)
     s.nodes = nodes or []
     s.edges = edges or []
     return s

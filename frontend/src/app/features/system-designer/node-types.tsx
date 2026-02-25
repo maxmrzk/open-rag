@@ -28,27 +28,31 @@ const nodeIcons: Record<NodeType, React.ElementType> = {
 };
 
 const nodeColors: Record<NodeType, { bg: string; border: string; icon: string }> = {
-  document_loader: { bg: "bg-blue-500/10",    border: "border-blue-500/30",    icon: "text-blue-400" },
-  chunker:         { bg: "bg-amber-500/10",   border: "border-amber-500/30",   icon: "text-amber-400" },
-  embedder:        { bg: "bg-purple-500/10",  border: "border-purple-500/30",  icon: "text-purple-400" },
-  vector_store:    { bg: "bg-cyan-500/10",    border: "border-cyan-500/30",    icon: "text-cyan-400" },
-  graph_store:     { bg: "bg-emerald-500/10", border: "border-emerald-500/30", icon: "text-emerald-400" },
-  retriever:       { bg: "bg-orange-500/10",  border: "border-orange-500/30",  icon: "text-orange-400" },
-  reranker:        { bg: "bg-pink-500/10",    border: "border-pink-500/30",    icon: "text-pink-400" },
-  llm:             { bg: "bg-indigo-500/10",  border: "border-indigo-500/30",  icon: "text-indigo-400" },
-  evaluation:      { bg: "bg-green-500/10",   border: "border-green-500/30",   icon: "text-green-400" },
+  document_loader: { bg: "bg-blue-500/10", border: "border-blue-500/30", icon: "text-blue-400" },
+  chunker: { bg: "bg-amber-500/10", border: "border-amber-500/30", icon: "text-amber-400" },
+  embedder: { bg: "bg-purple-500/10", border: "border-purple-500/30", icon: "text-purple-400" },
+  vector_store: { bg: "bg-cyan-500/10", border: "border-cyan-500/30", icon: "text-cyan-400" },
+  graph_store: {
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/30",
+    icon: "text-emerald-400",
+  },
+  retriever: { bg: "bg-orange-500/10", border: "border-orange-500/30", icon: "text-orange-400" },
+  reranker: { bg: "bg-pink-500/10", border: "border-pink-500/30", icon: "text-pink-400" },
+  llm: { bg: "bg-indigo-500/10", border: "border-indigo-500/30", icon: "text-indigo-400" },
+  evaluation: { bg: "bg-green-500/10", border: "border-green-500/30", icon: "text-green-400" },
 };
 
 const nodeTypeLabels: Record<NodeType, string> = {
   document_loader: "Document Loader",
-  chunker:         "Chunker",
-  embedder:        "Embedder",
-  vector_store:    "Vector Store",
-  graph_store:     "Graph Store",
-  retriever:       "Retriever",
-  reranker:        "Re-Ranker",
-  llm:             "LLM",
-  evaluation:      "Evaluation",
+  chunker: "Chunker",
+  embedder: "Embedder",
+  vector_store: "Vector Store",
+  graph_store: "Graph Store",
+  retriever: "Retriever",
+  reranker: "Re-Ranker",
+  llm: "LLM",
+  evaluation: "Evaluation",
 };
 
 export { nodeTypeLabels, nodeIcons, nodeColors };
@@ -95,9 +99,7 @@ function SystemNodeComponent({ data, selected, id }: NodeProps<any>) {
   const commitRename = useCallback(() => {
     const name = editValue.trim() || nodeData.label;
     setNodes((nds) =>
-      nds.map((n) =>
-        n.id === id ? { ...n, data: { ...n.data, label: name } } : n
-      )
+      nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, label: name } } : n))
     );
     setIsEditing(false);
   }, [editValue, nodeData.label, id, setNodes]);
@@ -115,8 +117,7 @@ function SystemNodeComponent({ data, selected, id }: NodeProps<any>) {
   );
 
   const hasCodeComponent = !!nodeData.codeComponentId;
-  const hasConnections =
-    (nodeData.inputs?.length ?? 0) + (nodeData.outputs?.length ?? 0) > 0;
+  const hasConnections = (nodeData.inputs?.length ?? 0) + (nodeData.outputs?.length ?? 0) > 0;
 
   return (
     <div
@@ -133,7 +134,9 @@ function SystemNodeComponent({ data, selected, id }: NodeProps<any>) {
       />
 
       <div className="flex items-center gap-2.5">
-        <div className={`w-7 h-7 rounded-md ${colors.bg} flex items-center justify-center shrink-0`}>
+        <div
+          className={`w-7 h-7 rounded-md ${colors.bg} flex items-center justify-center shrink-0`}
+        >
           <Icon className={`w-3.5 h-3.5 ${colors.icon}`} />
         </div>
 

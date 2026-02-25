@@ -1,8 +1,5 @@
 """Fernet symmetric encryption helpers for API key secrets."""
 
-import base64
-import os
-
 from app.core.config import get_settings
 
 _fernet = None

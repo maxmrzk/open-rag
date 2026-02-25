@@ -2,7 +2,7 @@
 
 import uuid
 from datetime import datetime
-from typing import Any, Generic, List, Optional, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -22,8 +22,8 @@ class Pagination(BaseModel):
 class ApiResponse(BaseModel, Generic[T]):
     data: T
     success: bool
-    message: Optional[str] = None
-    pagination: Optional[Pagination] = None
+    message: str | None = None
+    pagination: Pagination | None = None
 
 
 def ok(data: Any, message: str | None = None, pagination: Pagination | None = None) -> dict:
@@ -48,12 +48,12 @@ def err(message: str, data: Any = None) -> dict:
 
 class ProjectCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class ProjectUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=255)
-    description: Optional[str] = None
+    name: str | None = Field(None, min_length=1, max_length=255)
+    description: str | None = None
 
 
 class ProjectOut(BaseModel):
@@ -61,7 +61,7 @@ class ProjectOut(BaseModel):
 
     id: uuid.UUID
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     createdAt: datetime
     systemCount: int = Field(ge=0, default=0)
     runCount: int = Field(ge=0, default=0)
@@ -83,9 +83,9 @@ class SystemNodeIn(BaseModel):
     name: str
     config: dict[str, Any] = {}
     position: NodePosition
-    codeComponentId: Optional[str] = None
-    inputs: List[str] = []
-    outputs: List[str] = []
+    codeComponentId: str | None = None
+    inputs: list[str] = []
+    outputs: list[str] = []
 
 
 class SystemNodeOut(BaseModel):
@@ -96,9 +96,9 @@ class SystemNodeOut(BaseModel):
     name: str
     config: dict[str, Any]
     position: NodePosition
-    codeComponentId: Optional[str] = None
-    inputs: List[str] = []
-    outputs: List[str] = []
+    codeComponentId: str | None = None
+    inputs: list[str] = []
+    outputs: list[str] = []
 
 
 class SystemEdgeIn(BaseModel):
@@ -122,14 +122,14 @@ class SystemEdgeOut(BaseModel):
 
 class SystemCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
-    nodes: List[SystemNodeIn] = []
-    edges: List[SystemEdgeIn] = []
+    nodes: list[SystemNodeIn] = []
+    edges: list[SystemEdgeIn] = []
 
 
 class SystemUpdate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
-    nodes: List[SystemNodeIn] = []
-    edges: List[SystemEdgeIn] = []
+    nodes: list[SystemNodeIn] = []
+    edges: list[SystemEdgeIn] = []
 
 
 class SystemOut(BaseModel):
@@ -139,8 +139,8 @@ class SystemOut(BaseModel):
     projectId: uuid.UUID
     name: str
     version: int
-    nodes: List[SystemNodeOut]
-    edges: List[SystemEdgeOut]
+    nodes: list[SystemNodeOut]
+    edges: list[SystemEdgeOut]
     createdAt: datetime
     updatedAt: datetime
 
@@ -198,7 +198,7 @@ class ApiKeyOut(BaseModel):
     id: uuid.UUID
     name: str
     value: str  # masked
-    lastUsed: Optional[datetime] = None
+    lastUsed: datetime | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -222,29 +222,29 @@ class DefaultsOut(BaseModel):
 
 class ComponentCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
-    description: Optional[str] = None
+    description: str | None = None
     nodeType: str
-    provider: Optional[str] = None
+    provider: str | None = None
     language: str = "python"
     code: str
     isDefault: bool = False
-    tags: List[str] = []
-    requirements: List[str] = []
-    envVars: List[str] = []
-    projectId: Optional[uuid.UUID] = None
+    tags: list[str] = []
+    requirements: list[str] = []
+    envVars: list[str] = []
+    projectId: uuid.UUID | None = None
 
 
 class ComponentUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    nodeType: Optional[str] = None
-    provider: Optional[str] = None
-    language: Optional[str] = None
-    code: Optional[str] = None
-    isDefault: Optional[bool] = None
-    tags: Optional[List[str]] = None
-    requirements: Optional[List[str]] = None
-    envVars: Optional[List[str]] = None
+    name: str | None = None
+    description: str | None = None
+    nodeType: str | None = None
+    provider: str | None = None
+    language: str | None = None
+    code: str | None = None
+    isDefault: bool | None = None
+    tags: list[str] | None = None
+    requirements: list[str] | None = None
+    envVars: list[str] | None = None
 
 
 class ComponentOut(BaseModel):
@@ -252,16 +252,16 @@ class ComponentOut(BaseModel):
 
     id: uuid.UUID
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     nodeType: str
-    provider: Optional[str] = None
+    provider: str | None = None
     language: str
     code: str
     isDefault: bool
     isBuiltin: bool
-    tags: List[str]
-    requirements: List[str]
-    envVars: List[str]
-    projectId: Optional[uuid.UUID] = None
+    tags: list[str]
+    requirements: list[str]
+    envVars: list[str]
+    projectId: uuid.UUID | None = None
     createdAt: datetime
     updatedAt: datetime

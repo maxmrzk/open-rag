@@ -37,11 +37,7 @@ function DraggableItem({ type, onAddNode }: DraggableItemProps) {
   const Icon = nodeIcons[type];
   const colors = nodeColors[type];
 
-  const [{ isDragging }, drag] = useDrag<
-    PaletteDragItem,
-    void,
-    { isDragging: boolean }
-  >({
+  const [{ isDragging }, drag] = useDrag<PaletteDragItem, void, { isDragging: boolean }>({
     type: PALETTE_DND_TYPE,
     item: { nodeType: type },
     collect: (monitor) => ({
@@ -78,9 +74,7 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
   return (
     <div className="absolute top-4 left-4 z-20 bg-[#0d1117]/95 backdrop-blur-md border border-[#21262d] rounded-xl p-3 w-52 shadow-xl shadow-black/40">
       <div className="flex items-baseline gap-1.5 mb-2.5 px-1">
-        <span className="text-[11px] text-[#8b949e] uppercase tracking-wider">
-          Components
-        </span>
+        <span className="text-[11px] text-[#8b949e] uppercase tracking-wider">Components</span>
         <span className="text-[9px] text-[#484f58]">drag or click</span>
       </div>
 

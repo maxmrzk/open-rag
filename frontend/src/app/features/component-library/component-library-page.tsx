@@ -36,16 +36,15 @@ const NODE_TYPES: NodeType[] = [
   "evaluation",
 ];
 
-const PROVIDER_OPTIONS: { value: ComponentProvider; label: string; color: string }[] =
-  [
-    { value: "openai", label: "OpenAI", color: "text-green-400" },
-    { value: "google", label: "Google", color: "text-blue-400" },
-    { value: "anthropic", label: "Anthropic", color: "text-orange-400" },
-    { value: "cohere", label: "Cohere", color: "text-teal-400" },
-    { value: "huggingface", label: "HuggingFace", color: "text-yellow-400" },
-    { value: "langchain", label: "LangChain", color: "text-purple-400" },
-    { value: "custom", label: "Custom", color: "text-[#8b949e]" },
-  ];
+const PROVIDER_OPTIONS: { value: ComponentProvider; label: string; color: string }[] = [
+  { value: "openai", label: "OpenAI", color: "text-green-400" },
+  { value: "google", label: "Google", color: "text-blue-400" },
+  { value: "anthropic", label: "Anthropic", color: "text-orange-400" },
+  { value: "cohere", label: "Cohere", color: "text-teal-400" },
+  { value: "huggingface", label: "HuggingFace", color: "text-yellow-400" },
+  { value: "langchain", label: "LangChain", color: "text-purple-400" },
+  { value: "custom", label: "Custom", color: "text-[#8b949e]" },
+];
 
 const providerColors: Record<string, string> = {
   openai: "text-green-400 bg-green-500/10 border-green-500/20",
@@ -104,14 +103,11 @@ const EMPTY_FORM: NewComponentForm = {
 // ── Component ────────────────────────────────────────────────────────────────
 
 export function ComponentLibraryPage() {
-  const { components, addComponent, updateComponent, deleteComponent } =
-    useComponentLibrary();
+  const { components, addComponent, updateComponent, deleteComponent } = useComponentLibrary();
 
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<NodeType | "all">("all");
-  const [filterProvider, setFilterProvider] = useState<
-    ComponentProvider | "all"
-  >("all");
+  const [filterProvider, setFilterProvider] = useState<ComponentProvider | "all">("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [newForm, setNewForm] = useState<NewComponentForm>(EMPTY_FORM);
@@ -121,9 +117,7 @@ export function ComponentLibraryPage() {
 
   // ── Unsaved-changes dialog state ─────────────────────────────────────────
   const [pendingNav, setPendingNav] = useState<
-    | { type: "select"; id: string }
-    | { type: "create" }
-    | null
+    { type: "select"; id: string } | { type: "create" } | null
   >(null);
 
   // ── Filter components ────────────────────────────────────────────────────
@@ -136,8 +130,7 @@ export function ComponentLibraryPage() {
         c.description.toLowerCase().includes(search.toLowerCase()) ||
         c.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
       const matchType = filterType === "all" || c.nodeType === filterType;
-      const matchProvider =
-        filterProvider === "all" || c.provider === filterProvider;
+      const matchProvider = filterProvider === "all" || c.provider === filterProvider;
       return matchSearch && matchType && matchProvider;
     });
   }, [components, search, filterType, filterProvider]);
@@ -281,7 +274,6 @@ export function ComponentLibraryPage() {
 
   return (
     <div className="flex h-full bg-[#010409]">
-
       {/* ── Left sidebar ─────────────────────────────────────────────────── */}
       <div className="w-56 border-r border-[#21262d] flex flex-col shrink-0 bg-[#0d1117]">
         <div className="px-4 py-4 border-b border-[#21262d]">
@@ -289,9 +281,7 @@ export function ComponentLibraryPage() {
             <BookOpen className="w-4 h-4 text-indigo-400" />
             <span className="text-[14px] text-white">Component Library</span>
           </div>
-          <p className="text-[10px] text-[#484f58]">
-            Python code components for RAG nodes
-          </p>
+          <p className="text-[10px] text-[#484f58]">Python code components for RAG nodes</p>
         </div>
 
         <div className="flex-1 overflow-y-auto py-2">
@@ -316,9 +306,7 @@ export function ComponentLibraryPage() {
             {NODE_TYPES.map((type) => (
               <button
                 key={type}
-                onClick={() =>
-                  setFilterType((prev) => (prev === type ? "all" : type))
-                }
+                onClick={() => setFilterType((prev) => (prev === type ? "all" : type))}
                 className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md text-[12px] transition-colors ${
                   filterType === type
                     ? "bg-[#1f2937] text-white"
@@ -328,9 +316,7 @@ export function ComponentLibraryPage() {
                 <span className={nodeTypeColors[type] ?? "text-[#8b949e]"}>
                   {nodeTypeLabels[type]}
                 </span>
-                <span className="text-[10px] text-[#484f58]">
-                  {countByType[type] ?? 0}
-                </span>
+                <span className="text-[10px] text-[#484f58]">{countByType[type] ?? 0}</span>
               </button>
             ))}
           </div>
@@ -342,9 +328,7 @@ export function ComponentLibraryPage() {
             {PROVIDER_OPTIONS.map(({ value, label, color }) => (
               <button
                 key={value}
-                onClick={() =>
-                  setFilterProvider((prev) => (prev === value ? "all" : value))
-                }
+                onClick={() => setFilterProvider((prev) => (prev === value ? "all" : value))}
                 className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md text-[12px] transition-colors ${
                   filterProvider === value
                     ? "bg-[#1f2937] text-white"
@@ -389,9 +373,7 @@ export function ComponentLibraryPage() {
         {/* List */}
         <div className="flex-1 overflow-y-auto">
           {filtered.length === 0 ? (
-            <div className="text-center py-12 text-[#484f58] text-[12px]">
-              No components found
-            </div>
+            <div className="text-center py-12 text-[#484f58] text-[12px]">No components found</div>
           ) : (
             filtered.map((comp) => {
               const isSelected = comp.id === selectedId;
@@ -408,9 +390,7 @@ export function ComponentLibraryPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[12px] text-white truncate">
-                          {comp.name}
-                        </span>
+                        <span className="text-[12px] text-white truncate">{comp.name}</span>
                         {comp.isDefault && (
                           <span className="text-[8px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded-full border border-green-500/20 shrink-0">
                             default
@@ -435,9 +415,8 @@ export function ComponentLibraryPage() {
                             <span className="text-[#21262d]">·</span>
                             <span
                               className={`text-[10px] ${
-                                PROVIDER_OPTIONS.find(
-                                  (p) => p.value === comp.provider
-                                )?.color ?? "text-[#8b949e]"
+                                PROVIDER_OPTIONS.find((p) => p.value === comp.provider)?.color ??
+                                "text-[#8b949e]"
                               }`}
                             >
                               {comp.provider}
@@ -487,9 +466,7 @@ export function ComponentLibraryPage() {
                   </label>
                   <input
                     value={newForm.name}
-                    onChange={(e) =>
-                      setNewForm((f) => ({ ...f, name: e.target.value }))
-                    }
+                    onChange={(e) => setNewForm((f) => ({ ...f, name: e.target.value }))}
                     placeholder="e.g. My Custom Embedder"
                     className="w-full px-3 py-2 rounded-md bg-[#161b22] border border-[#21262d] text-[13px] text-white placeholder-[#484f58] outline-none focus:border-indigo-500 transition-colors"
                   />
@@ -502,9 +479,7 @@ export function ComponentLibraryPage() {
                   </label>
                   <textarea
                     value={newForm.description}
-                    onChange={(e) =>
-                      setNewForm((f) => ({ ...f, description: e.target.value }))
-                    }
+                    onChange={(e) => setNewForm((f) => ({ ...f, description: e.target.value }))}
                     rows={2}
                     placeholder="What does this component do?"
                     className="w-full px-3 py-2 rounded-md bg-[#161b22] border border-[#21262d] text-[13px] text-white placeholder-[#484f58] outline-none focus:border-indigo-500 transition-colors resize-none"
@@ -564,9 +539,7 @@ export function ComponentLibraryPage() {
                   </label>
                   <input
                     value={newForm.tags}
-                    onChange={(e) =>
-                      setNewForm((f) => ({ ...f, tags: e.target.value }))
-                    }
+                    onChange={(e) => setNewForm((f) => ({ ...f, tags: e.target.value }))}
                     placeholder="comma separated"
                     className="w-full px-3 py-2 rounded-md bg-[#161b22] border border-[#21262d] text-[13px] text-white placeholder-[#484f58] outline-none focus:border-indigo-500 transition-colors"
                   />
@@ -579,9 +552,7 @@ export function ComponentLibraryPage() {
                   </label>
                   <input
                     value={newForm.envVars}
-                    onChange={(e) =>
-                      setNewForm((f) => ({ ...f, envVars: e.target.value }))
-                    }
+                    onChange={(e) => setNewForm((f) => ({ ...f, envVars: e.target.value }))}
                     placeholder="OPENAI_API_KEY, ..."
                     className="w-full px-3 py-2 rounded-md bg-[#161b22] border border-[#21262d] text-[13px] text-white placeholder-[#484f58] outline-none focus:border-indigo-500 transition-colors"
                   />
@@ -594,9 +565,7 @@ export function ComponentLibraryPage() {
                   </label>
                   <input
                     value={newForm.requirements}
-                    onChange={(e) =>
-                      setNewForm((f) => ({ ...f, requirements: e.target.value }))
-                    }
+                    onChange={(e) => setNewForm((f) => ({ ...f, requirements: e.target.value }))}
                     placeholder="openai>=1.0.0, langchain>=0.2.0, ..."
                     className="w-full px-3 py-2 rounded-md bg-[#161b22] border border-[#21262d] text-[13px] text-white placeholder-[#484f58] outline-none focus:border-indigo-500 transition-colors"
                   />
@@ -612,9 +581,7 @@ export function ComponentLibraryPage() {
                       height="100%"
                       language="python"
                       value={newForm.code}
-                      onChange={(value) =>
-                        setNewForm((f) => ({ ...f, code: value || "" }))
-                      }
+                      onChange={(value) => setNewForm((f) => ({ ...f, code: value || "" }))}
                       theme="vs-dark"
                       options={{
                         minimap: { enabled: false },
@@ -674,8 +641,7 @@ export function ComponentLibraryPage() {
                   {selectedComp.provider && (
                     <span
                       className={`text-[10px] px-2 py-0.5 rounded-full border ${
-                        providerColors[selectedComp.provider] ??
-                        providerColors.custom
+                        providerColors[selectedComp.provider] ?? providerColors.custom
                       }`}
                     >
                       {selectedComp.provider}
@@ -689,9 +655,7 @@ export function ComponentLibraryPage() {
                     {nodeTypeLabels[selectedComp.nodeType]}
                   </span>
                 </div>
-                <p className="text-[12px] text-[#8b949e] mt-1">
-                  {selectedComp.description}
-                </p>
+                <p className="text-[12px] text-[#8b949e] mt-1">{selectedComp.description}</p>
 
                 {/* Meta row */}
                 <div className="flex items-center gap-4 mt-2 flex-wrap">
@@ -785,9 +749,9 @@ export function ComponentLibraryPage() {
               <div className="mx-6 mt-3 flex items-start gap-2 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20 shrink-0">
                 <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                 <div className="text-[11px] text-amber-300/80">
-                  This is a <strong>built-in</strong> component. Changes made here
-                  are for reference only — the code is not saved back to the library.
-                  Click <strong>Clone</strong> to create an editable copy.
+                  This is a <strong>built-in</strong> component. Changes made here are for reference
+                  only — the code is not saved back to the library. Click <strong>Clone</strong> to
+                  create an editable copy.
                 </div>
               </div>
             )}
@@ -800,11 +764,7 @@ export function ComponentLibraryPage() {
                   <span className="text-[11px] text-[#8b949e] uppercase tracking-wider">
                     Python Code
                   </span>
-                  {isDirty && (
-                    <span className="text-[10px] text-amber-400">
-                      · Unsaved changes
-                    </span>
-                  )}
+                  {isDirty && <span className="text-[10px] text-amber-400">· Unsaved changes</span>}
                 </div>
                 {!selectedComp.isBuiltin && (
                   <button
@@ -852,12 +812,10 @@ export function ComponentLibraryPage() {
               <Package className="w-8 h-8 text-indigo-400" />
             </div>
             <div>
-              <div className="text-[15px] text-white mb-1">
-                Select a component
-              </div>
+              <div className="text-[15px] text-white mb-1">Select a component</div>
               <p className="text-[12px] text-[#484f58] max-w-sm">
-                Browse the library on the left, or create a new Python component
-                to use in your RAG system nodes.
+                Browse the library on the left, or create a new Python component to use in your RAG
+                system nodes.
               </p>
             </div>
             <button

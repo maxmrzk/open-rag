@@ -21,10 +21,7 @@ export function UnsavedChangesDialog({
 }: UnsavedChangesDialogProps) {
   return (
     /* Backdrop */
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      onClick={onKeepEditing}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onKeepEditing}>
       {/* Frosted-glass overlay */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
 
@@ -48,19 +45,15 @@ export function UnsavedChangesDialog({
                 {fromName ? (
                   <>
                     You have unsaved edits in{" "}
-                    <span className="text-amber-400 font-medium">
-                      {fromName}
-                    </span>
-                    .{" "}
+                    <span className="text-amber-400 font-medium">{fromName}</span>.{" "}
                   </>
                 ) : (
                   "You have unsaved edits. "
                 )}
                 {toName ? (
                   <>
-                    If you switch to{" "}
-                    <span className="text-white">{toName}</span>, your changes
-                    will be lost.
+                    If you switch to <span className="text-white">{toName}</span>, your changes will
+                    be lost.
                   </>
                 ) : (
                   "Leaving now will discard them."

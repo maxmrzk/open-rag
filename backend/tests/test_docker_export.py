@@ -1,6 +1,5 @@
 """Tests for docker export generation helpers (pure functions, no DB)."""
 
-import pytest
 from app.services.docker_export import _DOCKERFILE_TEMPLATE, _build_compose
 
 

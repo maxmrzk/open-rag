@@ -105,7 +105,8 @@ describe("useApiMutation", () => {
     });
 
     const { result } = renderHook(
-      () => useApiMutation<{ name: string }, z.infer<typeof Schema>>({ url: "/items", schema: Schema }),
+      () =>
+        useApiMutation<{ name: string }, z.infer<typeof Schema>>({ url: "/items", schema: Schema }),
       { wrapper: makeWrapper() }
     );
 

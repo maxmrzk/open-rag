@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.schemas.schemas import ProjectCreate, ProjectUpdate, Pagination, ok, err
+from app.schemas.schemas import Pagination, ProjectCreate, ProjectUpdate, ok
 from app.services.projects import (
     create_project,
     delete_project,

@@ -142,9 +142,7 @@ export const mockSystems: SystemDefinition[] = [
     name: "Vector-Only RAG v1",
     version: 1,
     nodes: mockSystemDefinition.nodes.filter((n) => n.type !== "graph_store"),
-    edges: mockSystemDefinition.edges.filter(
-      (e) => e.source !== "node-5" && e.target !== "node-5"
-    ),
+    edges: mockSystemDefinition.edges.filter((e) => e.source !== "node-5" && e.target !== "node-5"),
     createdAt: "2026-02-12T08:00:00Z",
     updatedAt: "2026-02-14T12:00:00Z",
   },

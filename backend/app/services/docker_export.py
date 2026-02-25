@@ -2,12 +2,11 @@
 
 import uuid
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from sqlalchemy import select
 
 from app.models.models import SystemDefinition
-
 
 _DOCKERFILE_TEMPLATE = """\
 # ============================================
@@ -43,9 +42,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 """
 
 
-def _build_compose(
-    system_name: str, has_qdrant: bool, has_neo4j: bool, env_vars: list[str]
-) -> str:
+def _build_compose(system_name: str, has_qdrant: bool, has_neo4j: bool, env_vars: list[str]) -> str:
     env_lines = "\n".join(f"      - {v}=${{{v}}}" for v in env_vars)
 
     depends = []

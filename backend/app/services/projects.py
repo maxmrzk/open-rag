@@ -1,7 +1,6 @@
 """Service layer for Project CRUD operations."""
 
 import uuid
-from typing import Optional
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -62,7 +61,7 @@ async def list_projects(
     return projects, total
 
 
-async def get_project(db: AsyncSession, project_id: uuid.UUID) -> Optional[dict]:
+async def get_project(db: AsyncSession, project_id: uuid.UUID) -> dict | None:
     stmt = select(
         Project,
         select(func.count(SystemDefinition.id))
@@ -111,7 +110,7 @@ async def create_project(db: AsyncSession, data: ProjectCreate) -> dict:
 
 async def update_project(
     db: AsyncSession, project_id: uuid.UUID, data: ProjectUpdate
-) -> Optional[dict]:
+) -> dict | None:
     result = await db.execute(select(Project).where(Project.id == project_id))
     project = result.scalar_one_or_none()
     if project is None:

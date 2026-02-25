@@ -148,11 +148,7 @@ function CodeBlock({ code, label }: { code: string; label: string }) {
           onClick={copy}
           className="flex items-center gap-1.5 text-[10px] text-[#484f58] hover:text-[#c9d1d9] transition-colors"
         >
-          {copied ? (
-            <Check className="w-3 h-3 text-green-400" />
-          ) : (
-            <Copy className="w-3 h-3" />
-          )}
+          {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
           {copied ? "Copied!" : "Copy"}
         </button>
       </div>
@@ -182,7 +178,6 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#010409] text-[#c9d1d9] overflow-x-hidden">
-
       {/* ── Top nav ──────────────────────────────────────────────────────────── */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#21262d]/80 bg-[#010409]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
@@ -256,9 +251,9 @@ export function LandingPage() {
           </h1>
 
           <p className="text-[16px] text-[#8b949e] max-w-2xl mx-auto leading-relaxed mb-10">
-            RAG Builder is an open-source visual studio for designing, configuring,
-            evaluating, and deploying Retrieval-Augmented Generation pipelines.
-            Your code stays on your machine — always.
+            RAG Builder is an open-source visual studio for designing, configuring, evaluating, and
+            deploying Retrieval-Augmented Generation pipelines. Your code stays on your machine —
+            always.
           </p>
 
           {/* CTA buttons */}
@@ -367,12 +362,10 @@ export function LandingPage() {
       <section className="py-20 px-6 border-t border-[#21262d]/50">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-[30px] text-white mb-3 tracking-tight">
-              Run it your way
-            </h2>
+            <h2 className="text-[30px] text-white mb-3 tracking-tight">Run it your way</h2>
             <p className="text-[14px] text-[#8b949e] max-w-lg mx-auto">
-              Host the web app on your own infrastructure, or grab the native
-              desktop wrapper — no internet connection required after install.
+              Host the web app on your own infrastructure, or grab the native desktop wrapper — no
+              internet connection required after install.
             </p>
           </div>
 
@@ -415,9 +408,7 @@ export function LandingPage() {
                   </div>
                   <div>
                     <div className="text-[14px] text-white">Docker Compose</div>
-                    <div className="text-[11px] text-[#484f58]">
-                      Recommended for production
-                    </div>
+                    <div className="text-[11px] text-[#484f58]">Recommended for production</div>
                   </div>
                 </div>
                 <CodeBlock code={DOCKER_COMPOSE} label="docker-compose.yml" />
@@ -444,9 +435,7 @@ export function LandingPage() {
                   </div>
                   <div>
                     <div className="text-[14px] text-white">From Source</div>
-                    <div className="text-[11px] text-[#484f58]">
-                      Node 20+ · pnpm · Python 3.11+
-                    </div>
+                    <div className="text-[11px] text-[#484f58]">Node 20+ · pnpm · Python 3.11+</div>
                   </div>
                 </div>
                 <CodeBlock code={GIT_CLONE} label="bash" />
@@ -454,8 +443,8 @@ export function LandingPage() {
                 <div className="mt-5 p-3 rounded-lg border border-amber-500/20 bg-amber-500/5">
                   <div className="flex items-start gap-2 text-[11px] text-amber-300/80 leading-relaxed">
                     <Cpu className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                    Python execution is fully local. The UI communicates with a
-                    FastAPI sidecar — no code, keys, or data leave your machine.
+                    Python execution is fully local. The UI communicates with a FastAPI sidecar — no
+                    code, keys, or data leave your machine.
                   </div>
                 </div>
 
@@ -480,13 +469,11 @@ export function LandingPage() {
                   <Monitor className="w-6 h-6 text-purple-400" />
                 </div>
                 <div>
-                  <div className="text-[16px] text-white mb-1">
-                    RAG Builder Desktop
-                  </div>
+                  <div className="text-[16px] text-white mb-1">RAG Builder Desktop</div>
                   <p className="text-[12px] text-[#8b949e] max-w-xl leading-relaxed">
-                    The Electron wrapper bundles the React UI, a Python 3.11 runtime,
-                    and a FastAPI sidecar into a single installer. No Docker, no Node,
-                    no prior setup needed — just download and run.
+                    The Electron wrapper bundles the React UI, a Python 3.11 runtime, and a FastAPI
+                    sidecar into a single installer. No Docker, no Node, no prior setup needed —
+                    just download and run.
                   </p>
                 </div>
               </div>
@@ -510,9 +497,7 @@ export function LandingPage() {
                       <span className="text-[11px] text-indigo-400 group-hover:text-indigo-300">
                         {rel.ext}
                       </span>
-                      <span className="text-[10px] text-[#484f58] ml-auto">
-                        {rel.size}
-                      </span>
+                      <span className="text-[10px] text-[#484f58] ml-auto">{rel.size}</span>
                     </div>
                   </button>
                 ))}
@@ -571,13 +556,11 @@ export function LandingPage() {
                 Live demo — no sign-up required
               </div>
 
-              <h3 className="text-[26px] text-white mb-3 tracking-tight">
-                Try the demo instance
-              </h3>
+              <h3 className="text-[26px] text-white mb-3 tracking-tight">Try the demo instance</h3>
               <p className="text-[13px] text-[#8b949e] max-w-lg mx-auto mb-8 leading-relaxed">
-                Explore a pre-loaded workspace with sample projects, a Customer Support
-                RAG pipeline, evaluation runs, and Docker export configs — all backed
-                by mock data, nothing persisted.
+                Explore a pre-loaded workspace with sample projects, a Customer Support RAG
+                pipeline, evaluation runs, and Docker export configs — all backed by mock data,
+                nothing persisted.
               </p>
 
               {/* Demo feature pills */}
@@ -638,9 +621,7 @@ export function LandingPage() {
             <div className="w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
               <Brain className="w-3 h-3 text-white" />
             </div>
-            <span className="text-[12px] text-[#484f58]">
-              RAG Builder · v0.2.0 · Dev Preview
-            </span>
+            <span className="text-[12px] text-[#484f58]">RAG Builder · v0.2.0 · Dev Preview</span>
           </div>
           <div className="flex items-center gap-5 text-[12px] text-[#484f58]">
             <a

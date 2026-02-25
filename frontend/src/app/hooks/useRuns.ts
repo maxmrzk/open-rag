@@ -5,10 +5,7 @@ import { EvaluationRunListSchema } from "../api/schemas/run.schema";
 // Runs Hook — Live backend integration
 // ============================================================
 
-export const useRuns = (
-  systemId?: string,
-  options?: { refetchInterval?: number | false }
-) => {
+export const useRuns = (systemId?: string, options?: { refetchInterval?: number | false }) => {
   return useApiQuery({
     queryKey: ["runs", systemId ?? ""],
     url: `/systems/${systemId}/runs`,
@@ -24,11 +21,7 @@ export const useRunComparison = (baselineId?: string, comparedIds?: string[]) =>
       ? comparedIds.map((id) => `compared=${id}`).join("&")
       : "";
   return useApiQuery({
-    queryKey: [
-      "run-comparison",
-      baselineId ?? "",
-      ...(comparedIds ?? []),
-    ],
+    queryKey: ["run-comparison", baselineId ?? "", ...(comparedIds ?? [])],
     url: `/runs/compare?baseline=${baselineId}&${params}`,
     schema: EvaluationRunListSchema,
     enabled: !!baselineId && (comparedIds?.length ?? 0) > 0,

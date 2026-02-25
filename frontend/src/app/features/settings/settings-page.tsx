@@ -112,7 +112,10 @@ function InfraSection() {
           { label: "Docker Registry", value: "ghcr.io/your-org" },
           { label: "S3 Bucket", value: "s3://rag-artifacts" },
         ].map((item) => (
-          <div key={item.label} className="flex items-center justify-between py-2 border-b border-[#161b22]">
+          <div
+            key={item.label}
+            className="flex items-center justify-between py-2 border-b border-[#161b22]"
+          >
             <span className="text-[12px] text-[#8b949e]">{item.label}</span>
             <span className="text-[12px] text-white font-mono">{item.value}</span>
           </div>
@@ -135,7 +138,10 @@ function DefaultsSection() {
           { label: "Temperature", value: "0.1" },
           { label: "Top K Retrieval", value: "10" },
         ].map((item) => (
-          <div key={item.label} className="flex items-center justify-between py-2 border-b border-[#161b22]">
+          <div
+            key={item.label}
+            className="flex items-center justify-between py-2 border-b border-[#161b22]"
+          >
             <span className="text-[12px] text-[#8b949e]">{item.label}</span>
             <input
               defaultValue={item.value}
@@ -162,7 +168,9 @@ function SecuritySection() {
         <div className="flex items-center justify-between py-2">
           <div>
             <div className="text-[12px] text-white">Encrypt configs at rest</div>
-            <div className="text-[10px] text-[#484f58]">AES-256 encryption for stored configurations</div>
+            <div className="text-[10px] text-[#484f58]">
+              AES-256 encryption for stored configurations
+            </div>
           </div>
           <div className="w-9 h-5 rounded-full bg-indigo-600 relative cursor-pointer">
             <div className="w-4 h-4 rounded-full bg-white absolute right-0.5 top-0.5" />
@@ -180,7 +188,9 @@ function SecuritySection() {
         <div className="flex items-center justify-between py-2">
           <div>
             <div className="text-[12px] text-white">Require MFA for exports</div>
-            <div className="text-[10px] text-[#484f58]">Multi-factor auth before Docker exports</div>
+            <div className="text-[10px] text-[#484f58]">
+              Multi-factor auth before Docker exports
+            </div>
           </div>
           <div className="w-9 h-5 rounded-full bg-[#30363d] relative cursor-pointer">
             <div className="w-4 h-4 rounded-full bg-[#8b949e] absolute left-0.5 top-0.5" />

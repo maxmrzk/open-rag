@@ -1,7 +1,6 @@
 """Service layer for Component Library CRUD operations."""
 
 import uuid
-from typing import Optional
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,9 +31,9 @@ def _comp_to_dict(c: ComponentLibrary) -> dict:
 
 async def list_components(
     db: AsyncSession,
-    node_type: Optional[str] = None,
-    provider: Optional[str] = None,
-    search: Optional[str] = None,
+    node_type: str | None = None,
+    provider: str | None = None,
+    search: str | None = None,
     page: int = 1,
     page_size: int = 20,
 ) -> tuple[list[dict], int]:
@@ -67,10 +66,8 @@ async def list_components(
     return [_comp_to_dict(c) for c in comps], total
 
 
-async def get_component(db: AsyncSession, comp_id: uuid.UUID) -> Optional[dict]:
-    result = await db.execute(
-        select(ComponentLibrary).where(ComponentLibrary.id == comp_id)
-    )
+async def get_component(db: AsyncSession, comp_id: uuid.UUID) -> dict | None:
+    result = await db.execute(select(ComponentLibrary).where(ComponentLibrary.id == comp_id))
     comp = result.scalar_one_or_none()
     if comp is None:
         return None
@@ -100,10 +97,8 @@ async def create_component(db: AsyncSession, data: ComponentCreate) -> dict:
 
 async def update_component(
     db: AsyncSession, comp_id: uuid.UUID, data: ComponentUpdate
-) -> Optional[dict]:
-    result = await db.execute(
-        select(ComponentLibrary).where(ComponentLibrary.id == comp_id)
-    )
+) -> dict | None:
+    result = await db.execute(select(ComponentLibrary).where(ComponentLibrary.id == comp_id))
     comp = result.scalar_one_or_none()
     if comp is None:
         return None
@@ -137,9 +132,7 @@ async def update_component(
 
 
 async def delete_component(db: AsyncSession, comp_id: uuid.UUID) -> bool | str:
-    result = await db.execute(
-        select(ComponentLibrary).where(ComponentLibrary.id == comp_id)
-    )
+    result = await db.execute(select(ComponentLibrary).where(ComponentLibrary.id == comp_id))
     comp = result.scalar_one_or_none()
     if comp is None:
         return False

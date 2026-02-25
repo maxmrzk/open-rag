@@ -26,11 +26,27 @@ import { useComponentLibrary } from "../../hooks/useComponentLibrary";
 
 const HF_PRESETS: Record<string, { label: string; model: string; desc: string }[]> = {
   reranker: [
-    { label: "MiniLM-L-6 (fast)", model: "cross-encoder/ms-marco-MiniLM-L-6-v2", desc: "~80 MB · MS-MARCO" },
-    { label: "MiniLM-L-12 (balanced)", model: "cross-encoder/ms-marco-MiniLM-L-12-v2", desc: "~130 MB · MS-MARCO" },
-    { label: "ELECTRA base (best)", model: "cross-encoder/ms-marco-electra-base", desc: "~440 MB · MS-MARCO" },
+    {
+      label: "MiniLM-L-6 (fast)",
+      model: "cross-encoder/ms-marco-MiniLM-L-6-v2",
+      desc: "~80 MB · MS-MARCO",
+    },
+    {
+      label: "MiniLM-L-12 (balanced)",
+      model: "cross-encoder/ms-marco-MiniLM-L-12-v2",
+      desc: "~130 MB · MS-MARCO",
+    },
+    {
+      label: "ELECTRA base (best)",
+      model: "cross-encoder/ms-marco-electra-base",
+      desc: "~440 MB · MS-MARCO",
+    },
     { label: "BGE-reranker-base", model: "BAAI/bge-reranker-base", desc: "~270 MB · multilingual" },
-    { label: "BGE-reranker-large", model: "BAAI/bge-reranker-large", desc: "~1.3 GB · highest quality" },
+    {
+      label: "BGE-reranker-large",
+      model: "BAAI/bge-reranker-large",
+      desc: "~1.3 GB · highest quality",
+    },
   ],
   graph_store: [
     { label: "Neo4j (bolt)", model: "neo4j://localhost:7687", desc: "Production graph DB" },
@@ -61,11 +77,7 @@ const providerColors: Record<string, string> = {
 interface ConfigPanelProps {
   node: SystemNode | null;
   onClose: () => void;
-  onSave: (
-    nodeId: string,
-    config: Record<string, unknown>,
-    codeComponentId?: string
-  ) => void;
+  onSave: (nodeId: string, config: Record<string, unknown>, codeComponentId?: string) => void;
 }
 
 type Tab = "config" | "code" | "library";
@@ -79,9 +91,7 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
   const [hasConfigChanges, setHasConfigChanges] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
 
-  const [selectedComponentId, setSelectedComponentId] = useState<
-    string | undefined
-  >(undefined);
+  const [selectedComponentId, setSelectedComponentId] = useState<string | undefined>(undefined);
   const [codeText, setCodeText] = useState("");
   const [hasCodeChanges, setHasCodeChanges] = useState(false);
 
@@ -95,9 +105,7 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
       setSelectedComponentId(node.codeComponentId);
       setHasCodeChanges(false);
       // Load code from linked component
-      const comp = node.codeComponentId
-        ? getById(node.codeComponentId)
-        : undefined;
+      const comp = node.codeComponentId ? getById(node.codeComponentId) : undefined;
       setCodeText(comp?.code ?? "");
     }
   }, [node, getById]);
@@ -120,9 +128,7 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
   const needsCode = CODE_REQUIRED_NODES.includes(node.type);
   const isImportNode = IMPORT_NODES.includes(node.type);
   const nodeComponents = getByNodeType(node.type);
-  const linkedComponent = selectedComponentId
-    ? getById(selectedComponentId)
-    : null;
+  const linkedComponent = selectedComponentId ? getById(selectedComponentId) : null;
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -165,9 +171,7 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
 
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: "config", label: "Config", icon: Settings2 },
-    ...(needsCode || isImportNode
-      ? [{ id: "code" as Tab, label: "Code", icon: Code2 }]
-      : []),
+    ...(needsCode || isImportNode ? [{ id: "code" as Tab, label: "Code", icon: Code2 }] : []),
     { id: "library", label: "Library", icon: Package },
   ];
 
@@ -183,35 +187,29 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
           </div>
           <div className="min-w-0">
             <div className="text-[13px] text-white truncate">{node.name}</div>
-            <div className="text-[10px] text-[#8b949e]">
-              {nodeTypeLabels[node.type]}
-            </div>
+            <div className="text-[10px] text-[#8b949e]">{nodeTypeLabels[node.type]}</div>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {isDirty && (
-            <span className="text-[10px] text-amber-400 shrink-0">
-              Unsaved
-            </span>
-          )}
-          <button
-            onClick={onClose}
-            className="p-1 rounded hover:bg-[#21262d] transition-colors"
-          >
+          {isDirty && <span className="text-[10px] text-amber-400 shrink-0">Unsaved</span>}
+          <button onClick={onClose} className="p-1 rounded hover:bg-[#21262d] transition-colors">
             <X className="w-4 h-4 text-[#8b949e]" />
           </button>
         </div>
       </div>
 
       {/* Connection info */}
-      {((node.inputs?.length ?? 0) + (node.outputs?.length ?? 0) > 0) && (
+      {(node.inputs?.length ?? 0) + (node.outputs?.length ?? 0) > 0 && (
         <div className="px-4 py-2 border-b border-[#21262d] flex items-center gap-4 shrink-0">
           <div className="flex items-center gap-1.5 text-[11px] text-[#8b949e]">
             <Link2 className="w-3 h-3 text-[#484f58]" />
             <span className="text-[#484f58]">In:</span>
             {node.inputs?.length ? (
               node.inputs.map((id) => (
-                <code key={id} className="text-[10px] text-indigo-400 bg-indigo-500/10 px-1 rounded">
+                <code
+                  key={id}
+                  className="text-[10px] text-indigo-400 bg-indigo-500/10 px-1 rounded"
+                >
                   {id}
                 </code>
               ))
@@ -223,7 +221,10 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
             <span className="text-[#484f58]">Out:</span>
             {node.outputs?.length ? (
               node.outputs.map((id) => (
-                <code key={id} className="text-[10px] text-emerald-400 bg-emerald-500/10 px-1 rounded">
+                <code
+                  key={id}
+                  className="text-[10px] text-emerald-400 bg-emerald-500/10 px-1 rounded"
+                >
                   {id}
                 </code>
               ))
@@ -305,8 +306,7 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
                     {linkedComponent.provider && (
                       <span
                         className={`text-[9px] px-1.5 py-0.5 rounded-full border ${
-                          providerColors[linkedComponent.provider] ??
-                          providerColors.custom
+                          providerColors[linkedComponent.provider] ?? providerColors.custom
                         }`}
                       >
                         {linkedComponent.provider}
@@ -459,8 +459,7 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
           {linkedComponent?.isBuiltin && (
             <div className="px-4 py-1.5 border-t border-[#21262d] shrink-0">
               <p className="text-[10px] text-[#484f58]">
-                Built-in component — edits will only affect this node.
-                Go to{" "}
+                Built-in component — edits will only affect this node. Go to{" "}
                 <button
                   onClick={() => navigate("/app/library")}
                   className="text-indigo-400 hover:underline"
@@ -593,8 +592,8 @@ export function ConfigPanel({ node, onClose, onSave }: ConfigPanelProps) {
             {linkedComponent
               ? `🔗 ${linkedComponent.name}`
               : needsCode
-              ? "No component linked"
-              : nodeTypeLabels[node.type]}
+                ? "No component linked"
+                : nodeTypeLabels[node.type]}
           </span>
         )}
         <div className="flex items-center gap-2">

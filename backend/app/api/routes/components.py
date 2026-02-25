@@ -1,7 +1,6 @@
 """Component Library router — /component-library."""
 
 import uuid
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,9 +20,9 @@ router = APIRouter(prefix="/component-library", tags=["components"])
 
 @router.get("")
 async def get_components(
-    nodeType: Optional[str] = Query(None),
-    provider: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
+    nodeType: str | None = Query(None),
+    provider: str | None = Query(None),
+    search: str | None = Query(None),
     page: int = Query(1, ge=1),
     pageSize: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -68,9 +67,7 @@ async def put_component(
 ):
     comp = await update_component(db, comp_id, body)
     if comp is None:
-        raise HTTPException(
-            status_code=404, detail="Component not found or is a built-in"
-        )
+        raise HTTPException(status_code=404, detail="Component not found or is a built-in")
     return ok(comp)
 
 

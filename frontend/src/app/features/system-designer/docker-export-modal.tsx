@@ -98,10 +98,7 @@ export function DockerExportModal({ onClose }: DockerExportModalProps) {
               <Download className="w-3.5 h-3.5" />
               Download
             </button>
-            <button
-              onClick={onClose}
-              className="p-1 rounded hover:bg-[#21262d] transition-colors"
-            >
+            <button onClick={onClose} className="p-1 rounded hover:bg-[#21262d] transition-colors">
               <X className="w-4 h-4 text-[#8b949e]" />
             </button>
           </div>

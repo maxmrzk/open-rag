@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite'
-import { fileURLToPath } from 'node:url'
-import tailwindcss from '@tailwindcss/vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import { fileURLToPath } from "node:url";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [
@@ -13,25 +13,25 @@ export default defineConfig({
   resolve: {
     alias: {
       // Alias @ to the src directory
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
-  assetsInclude: ['**/*.svg', '**/*.csv'],
+  assetsInclude: ["**/*.svg", "**/*.csv"],
 
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'lcov'],
-      include: ['src/app/**/*.{ts,tsx}'],
-      exclude: ['src/app/**/*.d.ts', 'src/test/**'],
+      provider: "v8",
+      reporter: ["text", "lcov"],
+      include: ["src/app/**/*.{ts,tsx}"],
+      exclude: ["src/app/**/*.d.ts", "src/test/**"],
       thresholds: {
         lines: 60,
       },
     },
   },
-})
+});

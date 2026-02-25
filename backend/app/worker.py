@@ -10,9 +10,9 @@ import uuid
 
 from sqlalchemy import select
 
-from app.core.database import AsyncSessionLocal
 from app.core.config import get_settings
-from app.models.models import EvaluationRun, SystemDefinition
+from app.core.database import AsyncSessionLocal
+from app.models.models import EvaluationRun
 
 settings = get_settings()
 
@@ -33,9 +33,7 @@ async def evaluate_system(ctx: dict, run_id: str) -> None:
 
     try:
         async with AsyncSessionLocal() as db:
-            result = await db.execute(
-                select(EvaluationRun).where(EvaluationRun.id == run_uuid)
-            )
+            result = await db.execute(select(EvaluationRun).where(EvaluationRun.id == run_uuid))
             run = result.scalar_one_or_none()
             if run is None:
                 return
@@ -57,9 +55,7 @@ async def evaluate_system(ctx: dict, run_id: str) -> None:
 
     except Exception as exc:  # noqa: BLE001
         async with AsyncSessionLocal() as db:
-            result = await db.execute(
-                select(EvaluationRun).where(EvaluationRun.id == run_uuid)
-            )
+            result = await db.execute(select(EvaluationRun).where(EvaluationRun.id == run_uuid))
             run = result.scalar_one_or_none()
             if run:
                 run.status = "failed"
@@ -75,8 +71,9 @@ class WorkerSettings:
 
     @classmethod
     def _build(cls):
-        from arq.connections import RedisSettings as ARedisSettings
         import urllib.parse
+
+        from arq.connections import RedisSettings as ARedisSettings
 
         parsed = urllib.parse.urlparse(settings.REDIS_URL)
         cls.redis_settings = ARedisSettings(

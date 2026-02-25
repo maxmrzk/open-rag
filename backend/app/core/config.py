@@ -1,7 +1,6 @@
 """Application configuration loaded from environment variables."""
 
 from functools import lru_cache
-from typing import List
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings
@@ -9,9 +8,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = (
-        "postgresql+asyncpg://postgres:password@localhost:5432/ragbuilder"
-    )
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:password@localhost:5432/ragbuilder"
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -32,7 +29,7 @@ class Settings(BaseSettings):
         return v
 
     @property
-    def allowed_origins_list(self) -> List[str]:
+    def allowed_origins_list(self) -> list[str]:
         return [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}

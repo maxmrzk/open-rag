@@ -1,8 +1,5 @@
 import { useApiQuery, useApiMutation } from "./useApi";
-import {
-  SystemDefinitionSchema,
-  SystemListSchema,
-} from "../api/schemas/system.schema";
+import { SystemDefinitionSchema, SystemListSchema } from "../api/schemas/system.schema";
 import type {
   SystemDefinitionOutput,
   SystemNodeOutput,

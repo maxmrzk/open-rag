@@ -1,15 +1,14 @@
 """Service layer for System Definition CRUD operations."""
 
 import uuid
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.models import SystemDefinition, SystemEdge, SystemNode
-from app.schemas.schemas import SystemCreate, SystemNodeOut, SystemEdgeOut, SystemUpdate
+from app.schemas.schemas import SystemCreate, SystemUpdate
 
 
 def _system_to_dict(system: SystemDefinition) -> dict:
@@ -25,17 +24,13 @@ def _system_to_dict(system: SystemDefinition) -> dict:
                 "name": n.name,
                 "config": n.config or {},
                 "position": {"x": n.position_x, "y": n.position_y},
-                "codeComponentId": str(n.code_component_id)
-                if n.code_component_id
-                else None,
+                "codeComponentId": str(n.code_component_id) if n.code_component_id else None,
                 "inputs": n.inputs or [],
                 "outputs": n.outputs or [],
             }
             for n in system.nodes
         ],
-        "edges": [
-            {"id": e.id, "source": e.source, "target": e.target} for e in system.edges
-        ],
+        "edges": [{"id": e.id, "source": e.source, "target": e.target} for e in system.edges],
         "createdAt": system.created_at,
         "updatedAt": system.updated_at,
     }
@@ -50,18 +45,14 @@ async def list_systems(
     offset = (page - 1) * page_size
 
     total_result = await db.execute(
-        select(func.count(SystemDefinition.id)).where(
-            SystemDefinition.project_id == project_id
-        )
+        select(func.count(SystemDefinition.id)).where(SystemDefinition.project_id == project_id)
     )
     total = total_result.scalar_one()
 
     result = await db.execute(
         select(SystemDefinition)
         .where(SystemDefinition.project_id == project_id)
-        .options(
-            selectinload(SystemDefinition.nodes), selectinload(SystemDefinition.edges)
-        )
+        .options(selectinload(SystemDefinition.nodes), selectinload(SystemDefinition.edges))
         .order_by(SystemDefinition.created_at.desc())
         .offset(offset)
         .limit(page_size)
@@ -70,13 +61,11 @@ async def list_systems(
     return [_system_to_dict(s) for s in systems], total
 
 
-async def get_system(db: AsyncSession, system_id: uuid.UUID) -> Optional[dict]:
+async def get_system(db: AsyncSession, system_id: uuid.UUID) -> dict | None:
     result = await db.execute(
         select(SystemDefinition)
         .where(SystemDefinition.id == system_id)
-        .options(
-            selectinload(SystemDefinition.nodes), selectinload(SystemDefinition.edges)
-        )
+        .options(selectinload(SystemDefinition.nodes), selectinload(SystemDefinition.edges))
     )
     system = result.scalar_one_or_none()
     if system is None:
@@ -84,9 +73,7 @@ async def get_system(db: AsyncSession, system_id: uuid.UUID) -> Optional[dict]:
     return _system_to_dict(system)
 
 
-async def create_system(
-    db: AsyncSession, project_id: uuid.UUID, data: SystemCreate
-) -> dict:
+async def create_system(db: AsyncSession, project_id: uuid.UUID, data: SystemCreate) -> dict:
     system = SystemDefinition(
         project_id=project_id,
         name=data.name,
@@ -127,19 +114,15 @@ async def create_system(
     return full  # type: ignore[return-value]
 
 
-async def update_system(
-    db: AsyncSession, system_id: uuid.UUID, data: SystemUpdate
-) -> Optional[dict]:
-    result = await db.execute(
-        select(SystemDefinition).where(SystemDefinition.id == system_id)
-    )
+async def update_system(db: AsyncSession, system_id: uuid.UUID, data: SystemUpdate) -> dict | None:
+    result = await db.execute(select(SystemDefinition).where(SystemDefinition.id == system_id))
     system = result.scalar_one_or_none()
     if system is None:
         return None
 
     system.name = data.name
     system.version += 1
-    system.updated_at = datetime.now(timezone.utc)
+    system.updated_at = datetime.now(UTC)
 
     # Delete and re-insert nodes + edges (transactional replace)
     await db.execute(delete(SystemNode).where(SystemNode.system_id == system_id))
@@ -176,9 +159,7 @@ async def update_system(
 
 
 async def delete_system(db: AsyncSession, system_id: uuid.UUID) -> bool:
-    result = await db.execute(
-        select(SystemDefinition).where(SystemDefinition.id == system_id)
-    )
+    result = await db.execute(select(SystemDefinition).where(SystemDefinition.id == system_id))
     system = result.scalar_one_or_none()
     if system is None:
         return False

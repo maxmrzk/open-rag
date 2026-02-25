@@ -1,6 +1,6 @@
 """FastAPI application factory."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -41,7 +41,7 @@ def create_app() -> FastAPI:
     # ---------------------------------------------------------- Health probe
     @app.get("/api/v1/health", tags=["health"])
     async def health():
-        return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
+        return {"status": "ok", "timestamp": datetime.now(UTC).isoformat()}
 
     # ---------------------------------------------------------- Routers
     prefix = settings_obj.API_V1_PREFIX

@@ -1,28 +1,23 @@
 """Tests for app.schemas.schemas — Pydantic schema validation and envelope helpers."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
 
 from app.schemas.schemas import (
-    ApiResponse,
+    ApiKeyCreate,
+    MetricsOut,
+    Pagination,
     ProjectCreate,
     ProjectOut,
     ProjectUpdate,
-    MetricsOut,
-    EvaluationRunOut,
-    ApiKeyCreate,
-    ComponentCreate,
     SystemCreate,
     SystemNodeIn,
-    SystemEdgeIn,
-    Pagination,
-    ok,
     err,
+    ok,
 )
-
 
 # ---------------------------------------------------------------------------
 # Envelope helpers
@@ -96,7 +91,7 @@ class TestProjectOut:
             "id": uuid.uuid4(),
             "name": "Test",
             "description": None,
-            "createdAt": datetime.now(timezone.utc),
+            "createdAt": datetime.now(UTC),
             "systemCount": 0,
             "runCount": 0,
         }

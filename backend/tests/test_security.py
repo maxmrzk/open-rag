@@ -1,8 +1,8 @@
 """Tests for app.core.security — Fernet encrypt/decrypt/mask."""
 
-import pytest
 from unittest.mock import patch
 
+import pytest
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -55,8 +55,9 @@ class TestEncryptDecrypt:
 
     def test_decrypt_wrong_key_raises(self):
         """Decrypting with a different key must raise an exception."""
-        from app.core import security
         from cryptography.fernet import InvalidToken
+
+        from app.core import security
 
         key_a = _make_fernet_key()
         key_b = _make_fernet_key()

@@ -6,16 +6,17 @@ Create Date: 2026-02-25
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
-from alembic import op
 from sqlalchemy.dialects import postgresql
 
+from alembic import op
+
 revision: str = "0001_initial"
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -52,9 +53,7 @@ def upgrade() -> None:
         sa.Column("code", sa.Text(), nullable=False),
         sa.Column("is_default", sa.Boolean(), nullable=False, server_default="false"),
         sa.Column("is_builtin", sa.Boolean(), nullable=False, server_default="false"),
-        sa.Column(
-            "tags", postgresql.ARRAY(sa.Text()), nullable=False, server_default="{}"
-        ),
+        sa.Column("tags", postgresql.ARRAY(sa.Text()), nullable=False, server_default="{}"),
         sa.Column(
             "requirements",
             postgresql.ARRAY(sa.Text()),
@@ -80,12 +79,8 @@ def upgrade() -> None:
             server_default=sa.func.now(),
         ),
     )
-    op.create_index(
-        "idx_component_library_node_type", "component_library", ["node_type"]
-    )
-    op.create_index(
-        "idx_component_library_project_id", "component_library", ["project_id"]
-    )
+    op.create_index("idx_component_library_node_type", "component_library", ["node_type"])
+    op.create_index("idx_component_library_project_id", "component_library", ["project_id"])
 
     # ---------------------------------------------------- system_definitions
     op.create_table(
@@ -134,9 +129,7 @@ def upgrade() -> None:
             sa.ForeignKey("component_library.id", ondelete="SET NULL"),
             nullable=True,
         ),
-        sa.Column(
-            "inputs", postgresql.ARRAY(sa.Text()), nullable=False, server_default="{}"
-        ),
+        sa.Column("inputs", postgresql.ARRAY(sa.Text()), nullable=False, server_default="{}"),
         sa.Column(
             "outputs",
             postgresql.ARRAY(sa.Text()),
@@ -171,9 +164,7 @@ def upgrade() -> None:
         ),
         sa.Column("system_name", sa.String(255), nullable=False),
         sa.Column("status", sa.String(16), nullable=False, server_default="running"),
-        sa.Column(
-            "config_snapshot", postgresql.JSONB(), nullable=False, server_default="{}"
-        ),
+        sa.Column("config_snapshot", postgresql.JSONB(), nullable=False, server_default="{}"),
         sa.Column("error_message", sa.Text(), nullable=True),
         sa.Column("metric_precision", sa.Double(), nullable=True),
         sa.Column("metric_recall", sa.Double(), nullable=True),

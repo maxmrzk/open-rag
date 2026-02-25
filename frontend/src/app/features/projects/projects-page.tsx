@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProjects, useCreateProject } from "../../hooks/useProjects";
-import {
-  Plus,
-  FolderKanban,
-  Workflow,
-  Play,
-  Calendar,
-  MoreHorizontal,
-} from "lucide-react";
+import { Plus, FolderKanban, Workflow, Play, Calendar, MoreHorizontal } from "lucide-react";
 
 export function ProjectsPage() {
   const { data: projects, isLoading } = useProjects();
@@ -67,9 +60,7 @@ export function ProjectsPage() {
             </div>
 
             {project.description && (
-              <p className="text-[12px] text-[#8b949e] mb-4 line-clamp-2">
-                {project.description}
-              </p>
+              <p className="text-[12px] text-[#8b949e] mb-4 line-clamp-2">{project.description}</p>
             )}
 
             <div className="flex items-center gap-4 pt-3 border-t border-[#21262d]">
@@ -88,13 +79,22 @@ export function ProjectsPage() {
 
       {/* Create Modal */}
       {showCreateModal && (
-        <CreateProjectModal onClose={() => setShowCreateModal(false)} onCreated={() => setShowCreateModal(false)} />
+        <CreateProjectModal
+          onClose={() => setShowCreateModal(false)}
+          onCreated={() => setShowCreateModal(false)}
+        />
       )}
     </div>
   );
 }
 
-function CreateProjectModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+function CreateProjectModal({
+  onClose,
+  onCreated,
+}: {
+  onClose: () => void;
+  onCreated: () => void;
+}) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const queryClient = useQueryClient();
@@ -119,9 +119,7 @@ function CreateProjectModal({ onClose, onCreated }: { onClose: () => void; onCre
 
         <div className="space-y-3">
           <div>
-            <label className="block text-[12px] text-[#8b949e] mb-1.5">
-              Project Name
-            </label>
+            <label className="block text-[12px] text-[#8b949e] mb-1.5">Project Name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}

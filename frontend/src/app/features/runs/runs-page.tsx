@@ -1,17 +1,16 @@
 import { useRuns } from "../../hooks/useRuns";
-import {
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  Play,
-  ChevronRight,
-} from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, Play, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { EvaluationRun } from "../../types";
 
 const statusConfig = {
-  completed: { icon: CheckCircle2, color: "text-green-400", bg: "bg-green-400/10", label: "Completed" },
+  completed: {
+    icon: CheckCircle2,
+    color: "text-green-400",
+    bg: "bg-green-400/10",
+    label: "Completed",
+  },
   running: { icon: Clock, color: "text-amber-400", bg: "bg-amber-400/10", label: "Running" },
   failed: { icon: AlertCircle, color: "text-red-400", bg: "bg-red-400/10", label: "Failed" },
 };
@@ -34,7 +33,7 @@ export function RunsPage() {
           <p className="text-[13px] text-[#8b949e] mt-1">
             {systemId
               ? "View evaluation runs and their configuration snapshots."
-              : "Open a system in the Designer and click \"Run System\" to start an evaluation run."}
+              : 'Open a system in the Designer and click "Run System" to start an evaluation run.'}
           </p>
         </div>
       </div>
@@ -44,7 +43,9 @@ export function RunsPage() {
         <div className="flex flex-col items-center justify-center py-20 text-[#484f58]">
           <Play className="w-10 h-10 mb-3 opacity-30" />
           <p className="text-[13px]">No system selected.</p>
-          <p className="text-[12px] mt-1">Navigate to a system via the Designer to view its runs.</p>
+          <p className="text-[12px] mt-1">
+            Navigate to a system via the Designer to view its runs.
+          </p>
         </div>
       )}
 
@@ -66,7 +67,9 @@ export function RunsPage() {
                 className="w-full px-5 py-4 flex items-center justify-between hover:bg-[#161b22] transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-8 h-8 rounded-lg ${status.bg} flex items-center justify-center`}>
+                  <div
+                    className={`w-8 h-8 rounded-lg ${status.bg} flex items-center justify-center`}
+                  >
                     <StatusIcon className={`w-4 h-4 ${status.color}`} />
                   </div>
                   <div className="text-left">
@@ -81,7 +84,12 @@ export function RunsPage() {
                       <MetricBadge label="Prec" value={run.metrics.precision} />
                       <MetricBadge label="Recall" value={run.metrics.recall} />
                       <MetricBadge label="MRR" value={run.metrics.mrr} />
-                      <MetricBadge label="Latency" value={run.metrics.latencyMs} suffix="ms" isRaw />
+                      <MetricBadge
+                        label="Latency"
+                        value={run.metrics.latencyMs}
+                        suffix="ms"
+                        isRaw
+                      />
                     </div>
                   )}
                   <div className="text-[11px] text-[#8b949e] whitespace-nowrap">
@@ -118,10 +126,10 @@ export function RunsPage() {
                                 ? key === "costUsd"
                                   ? `$${value.toFixed(3)}`
                                   : key === "latencyMs"
-                                  ? `${value}ms`
-                                  : key === "tokenUsage"
-                                  ? value.toLocaleString()
-                                  : value.toFixed(3)
+                                    ? `${value}ms`
+                                    : key === "tokenUsage"
+                                      ? value.toLocaleString()
+                                      : value.toFixed(3)
                                 : String(value)}
                             </span>
                           </div>

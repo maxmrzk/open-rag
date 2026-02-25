@@ -1,7 +1,6 @@
 """Runs router — /systems/{id}/runs and /runs/{id} and /runs/compare."""
 
 import uuid
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -46,7 +45,7 @@ async def get_runs(
 @router.get("/runs/compare")
 async def compare_runs(
     baseline: uuid.UUID = Query(...),
-    compared: List[uuid.UUID] = Query(...),
+    compared: list[uuid.UUID] = Query(...),
     db: AsyncSession = Depends(get_db),
 ):
     runs = await get_runs_comparison(db, baseline, compared)

@@ -1,7 +1,7 @@
 """SQLAlchemy ORM models — mirrors the SQL schema in the implementation plan."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import (
     Boolean,
@@ -20,7 +20,7 @@ from app.core.database import Base
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 # ---------------------------------------------------------------------------
@@ -31,9 +31,7 @@ def _utcnow() -> datetime:
 class Project(Base):
     __tablename__ = "projects"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -53,9 +51,7 @@ class Project(Base):
 class SystemDefinition(Base):
     __tablename__ = "system_definitions"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("projects.id", ondelete="CASCADE"),
@@ -110,13 +106,9 @@ class SystemNode(Base):
         nullable=True,
     )
     inputs: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, default=list)
-    outputs: Mapped[list[str]] = mapped_column(
-        ARRAY(Text), nullable=False, default=list
-    )
+    outputs: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, default=list)
 
-    system: Mapped["SystemDefinition"] = relationship(
-        "SystemDefinition", back_populates="nodes"
-    )
+    system: Mapped["SystemDefinition"] = relationship("SystemDefinition", back_populates="nodes")
 
 
 # ---------------------------------------------------------------------------
@@ -136,9 +128,7 @@ class SystemEdge(Base):
     source: Mapped[str] = mapped_column(String(64), nullable=False)
     target: Mapped[str] = mapped_column(String(64), nullable=False)
 
-    system: Mapped["SystemDefinition"] = relationship(
-        "SystemDefinition", back_populates="edges"
-    )
+    system: Mapped["SystemDefinition"] = relationship("SystemDefinition", back_populates="edges")
 
 
 # ---------------------------------------------------------------------------
@@ -149,9 +139,7 @@ class SystemEdge(Base):
 class EvaluationRun(Base):
     __tablename__ = "evaluation_runs"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     system_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("system_definitions.id", ondelete="CASCADE"),
@@ -175,9 +163,7 @@ class EvaluationRun(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
-    system: Mapped["SystemDefinition"] = relationship(
-        "SystemDefinition", back_populates="runs"
-    )
+    system: Mapped["SystemDefinition"] = relationship("SystemDefinition", back_populates="runs")
 
 
 # ---------------------------------------------------------------------------
@@ -188,14 +174,10 @@ class EvaluationRun(Base):
 class ApiKeySecret(Base):
     __tablename__ = "api_key_secrets"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
     value_enc: Mapped[str] = mapped_column(Text, nullable=False)
-    last_used: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    last_used: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -221,9 +203,7 @@ class DefaultConfig(Base):
 class ComponentLibrary(Base):
     __tablename__ = "component_library"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("projects.id", ondelete="CASCADE"),
@@ -238,12 +218,8 @@ class ComponentLibrary(Base):
     is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_builtin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     tags: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, default=list)
-    requirements: Mapped[list[str]] = mapped_column(
-        ARRAY(Text), nullable=False, default=list
-    )
-    env_vars: Mapped[list[str]] = mapped_column(
-        ARRAY(Text), nullable=False, default=list
-    )
+    requirements: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, default=list)
+    env_vars: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, default=list)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

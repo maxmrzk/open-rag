@@ -36,9 +36,7 @@ export function useComponentLibrary() {
   }, []);
 
   const addComponent = useCallback(
-    (
-      data: Omit<CodeComponent, "id" | "isBuiltin" | "createdAt" | "updatedAt">
-    ): CodeComponent => {
+    (data: Omit<CodeComponent, "id" | "isBuiltin" | "createdAt" | "updatedAt">): CodeComponent => {
       const newComponent: CodeComponent = {
         ...data,
         id: `comp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -56,9 +54,7 @@ export function useComponentLibrary() {
     (id: string, updates: Partial<CodeComponent>) => {
       persist(
         components.map((c) =>
-          c.id === id
-            ? { ...c, ...updates, updatedAt: new Date().toISOString() }
-            : c
+          c.id === id ? { ...c, ...updates, updatedAt: new Date().toISOString() } : c
         )
       );
     },
@@ -79,14 +75,10 @@ export function useComponentLibrary() {
     [components]
   );
 
-  const getById = useCallback(
-    (id: string) => components.find((c) => c.id === id),
-    [components]
-  );
+  const getById = useCallback((id: string) => components.find((c) => c.id === id), [components]);
 
   const getDefault = useCallback(
-    (nodeType: NodeType) =>
-      components.find((c) => c.nodeType === nodeType && c.isDefault),
+    (nodeType: NodeType) => components.find((c) => c.nodeType === nodeType && c.isDefault),
     [components]
   );
 

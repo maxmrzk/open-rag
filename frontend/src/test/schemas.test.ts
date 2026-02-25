@@ -19,11 +19,7 @@ import {
   SystemEdgeSchema,
   SystemDefinitionSchema,
 } from "@/app/api/schemas/system.schema";
-import {
-  UUIDSchema,
-  TimestampSchema,
-  ApiResponseSchema,
-} from "@/app/api/schemas/common.schema";
+import { UUIDSchema, TimestampSchema, ApiResponseSchema } from "@/app/api/schemas/common.schema";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Common schemas
@@ -101,7 +97,10 @@ describe("ProjectListSchema", () => {
   });
 
   it("parses a list of projects", () => {
-    const list = ProjectListSchema.parse([validProject, { ...validProject, id: "550e8400-e29b-41d4-a716-446655440001" }]);
+    const list = ProjectListSchema.parse([
+      validProject,
+      { ...validProject, id: "550e8400-e29b-41d4-a716-446655440001" },
+    ]);
     expect(list).toHaveLength(2);
   });
 });
@@ -192,7 +191,15 @@ describe("EvaluationRunSchema", () => {
     const runningRun = {
       ...validRun,
       status: "running",
-      metrics: { precision: 0, recall: 0, mrr: 0, latencyMs: 0, tokenUsage: 0, costUsd: 0, hallucinationScore: 0 },
+      metrics: {
+        precision: 0,
+        recall: 0,
+        mrr: 0,
+        latencyMs: 0,
+        tokenUsage: 0,
+        costUsd: 0,
+        hallucinationScore: 0,
+      },
     };
     const r = EvaluationRunSchema.parse(runningRun);
     expect(r.status).toBe("running");

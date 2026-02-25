@@ -1,23 +1,23 @@
 """Alembic env.py — async migration support."""
 
 import asyncio
-from logging.config import fileConfig
-
-from alembic import context
-from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import async_engine_from_config
+import os
 
 # Import settings and Base so Alembic can read models
 import sys
-import os
+from logging.config import fileConfig
+
+from sqlalchemy import pool
+from sqlalchemy.ext.asyncio import async_engine_from_config
+
+from alembic import context
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from app.core.config import get_settings
-from app.core.database import Base
-
 # Import all models so they are registered on Base.metadata
 import app.models.models  # noqa: F401
+from app.core.config import get_settings
+from app.core.database import Base
 
 config = context.config
 

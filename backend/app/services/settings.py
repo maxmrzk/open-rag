@@ -1,7 +1,6 @@
 """Service layer for Settings (API keys + default configs)."""
 
 import uuid
-from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import decrypt_value, encrypt_value, mask_value
 from app.models.models import ApiKeySecret, DefaultConfig
 from app.schemas.schemas import ApiKeyCreate
-
 
 # ---------------------------------------------------------------------------
 # API Key Secrets
