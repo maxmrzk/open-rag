@@ -25,6 +25,7 @@ backend/*.egg-info
 backend/.installed.cfg
 backend/*.egg
 backend/MANIFEST
+__pycache__
 
 # pytest
 backend/.pytest_cache
@@ -87,5 +88,4 @@ ehthumbs.db
 # ─────────────────────────────────────────────────────────────────────────────
 # Docker / container artifacts
 # ─────────────────────────────────────────────────────────────────────────────
-.dockerignore
 docker-compose.override.yml

@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router";
 import { RootLayout } from "./components/layout";
 import { LandingPage } from "./features/landing/landing-page";
 import { ProjectsPage } from "./features/projects/projects-page";
+import { ProjectDetailPage } from "./features/projects/project-detail-page";
 import { DesignerPage } from "./features/system-designer/designer-page";
 import { EvaluationsPage } from "./features/evaluations/evaluations-page";
 import { RunsPage } from "./features/runs/runs-page";
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
     Component: RootLayout,
     children: [
       { index: true, Component: ProjectsPage },
+      { path: "projects/:projectId", Component: ProjectDetailPage },
       { path: "designer", Component: DesignerPage },
       { path: "library", Component: ComponentLibraryPage },
       { path: "evaluations", Component: EvaluationsPage },

@@ -1,13 +1,14 @@
 import { useState, useMemo } from "react";
 import {
-  BarChart3,
   ArrowUpDown,
   CheckCircle2,
   Clock,
   AlertCircle,
   GitCompareArrows,
+  Layers,
 } from "lucide-react";
-import { useRuns } from "../../hooks/useRuns";
+import { useRuns, useAllRuns } from "../../hooks/useRuns";
+import { useAllSystems } from "../../hooks/useSystems";
 import type { EvaluationRun } from "../../types";
 import { MetricsComparisonChart } from "./metrics-chart";
 
@@ -28,10 +29,26 @@ const statusConfig = {
 };
 
 export function EvaluationsPage() {
-  const { data: runs } = useRuns();
+  const [selectedSystemId, setSelectedSystemId] = useState<string>("");
+  const { data: allSystems } = useAllSystems();
+
+  // When a system is selected, use system-scoped hook; otherwise load all runs
+  const { data: systemRuns } = useRuns(selectedSystemId || undefined);
+  const { data: allRuns } = useAllRuns();
+  const runs = selectedSystemId ? systemRuns : allRuns;
+
   const [selectedRunIds, setSelectedRunIds] = useState<string[]>([]);
   const [sortField, setSortField] = useState<string>("createdAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  // Group systems by project for <optgroup>
+  const systemsByProject = allSystems?.reduce<
+    Record<string, { projectName: string; systems: typeof allSystems }>
+  >((acc, sys) => {
+    if (!acc[sys.projectId]) acc[sys.projectId] = { projectName: sys.projectName, systems: [] };
+    acc[sys.projectId].systems.push(sys);
+    return acc;
+  }, {});
 
   const completedRuns = useMemo(() => (runs || []).filter((r) => r.status === "completed"), [runs]);
 
@@ -72,21 +89,45 @@ export function EvaluationsPage() {
   return (
     <div className="p-8 max-w-[1400px] mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
         <div>
           <h1 className="text-[22px] text-white tracking-tight">Evaluations</h1>
           <p className="text-[13px] text-[#8b949e] mt-1">
             Compare RAG system performance across different configurations.
           </p>
         </div>
-        {selectedRunIds.length >= 2 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-            <GitCompareArrows className="w-4 h-4 text-indigo-400" />
-            <span className="text-[12px] text-indigo-300">
-              {selectedRunIds.length} runs selected for comparison
-            </span>
+
+        <div className="flex items-center gap-4 flex-wrap">
+          {/* System filter */}
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-cyan-400 shrink-0" />
+            <select
+              value={selectedSystemId}
+              onChange={(e) => setSelectedSystemId(e.target.value)}
+              className="px-3 py-1.5 rounded-lg bg-[#161b22] border border-[#21262d] text-[12px] text-white focus:outline-none focus:border-indigo-500 min-w-[220px]"
+            >
+              <option value="">All Systems</option>
+              {Object.values(systemsByProject ?? {}).map(({ projectName, systems }) => (
+                <optgroup key={projectName} label={projectName}>
+                  {systems.map((sys) => (
+                    <option key={sys.id} value={sys.id}>
+                      {sys.name} (v{sys.version})
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
           </div>
-        )}
+
+          {selectedRunIds.length >= 2 && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+              <GitCompareArrows className="w-4 h-4 text-indigo-400" />
+              <span className="text-[12px] text-indigo-300">
+                {selectedRunIds.length} runs selected for comparison
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Comparison Chart */}
@@ -107,7 +148,7 @@ export function EvaluationsPage() {
                   <span className="sr-only">Select</span>
                 </th>
                 <th className="px-4 py-3 text-[11px] text-[#8b949e] uppercase tracking-wider">
-                  System
+                  System / Project
                 </th>
                 <th className="px-4 py-3 text-[11px] text-[#8b949e] uppercase tracking-wider">
                   Status
@@ -160,7 +201,12 @@ export function EvaluationsPage() {
                     <td className="px-4 py-3">
                       <div className="text-[12px] text-white">{run.systemName}</div>
                       <div className="text-[10px] text-[#484f58] font-mono mt-0.5">
-                        {run.id.slice(0, 12)}...
+                        {run.projectName && (
+                          <span className="text-[10px] text-indigo-400/70">
+                            {run.projectName} ·{" "}
+                          </span>
+                        )}
+                        {run.id.slice(0, 12)}…
                       </div>
                     </td>
                     <td className="px-4 py-3">

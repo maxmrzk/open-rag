@@ -11,11 +11,28 @@ from app.services.systems import (
     create_system,
     delete_system,
     get_system,
+    list_all_systems,
     list_systems,
     update_system,
 )
 
 router = APIRouter(tags=["systems"])
+
+
+# ---------------------------------------------------------------------------
+# Global system listing (all systems across projects — for selectors)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/systems")
+async def get_all_systems(
+    page: int = Query(1, ge=1),
+    pageSize: int = Query(200, ge=1, le=500),
+    db: AsyncSession = Depends(get_db),
+):
+    systems, total = await list_all_systems(db, page=page, page_size=pageSize)
+    pagination = Pagination(page=page, pageSize=pageSize, total=total)
+    return ok(systems, pagination=pagination)
 
 
 # ---------------------------------------------------------------------------

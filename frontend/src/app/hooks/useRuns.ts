@@ -1,5 +1,10 @@
-import { useApiQuery } from "./useApi";
-import { EvaluationRunListSchema } from "../api/schemas/run.schema";
+import { useApiQuery, useApiMutation } from "./useApi";
+import {
+  EvaluationRunListSchema,
+  EvaluationRunSchema,
+  RunCreateSchema,
+} from "../api/schemas/run.schema";
+import type { RunCreateInput, EvaluationRunOutput } from "../api/schemas/run.schema";
 
 // ============================================================
 // Runs Hook — Live backend integration
@@ -12,6 +17,36 @@ export const useRuns = (systemId?: string, options?: { refetchInterval?: number 
     schema: EvaluationRunListSchema,
     enabled: !!systemId,
     refetchInterval: options?.refetchInterval,
+  });
+};
+
+export const useAllRuns = (options?: { refetchInterval?: number | false }) => {
+  return useApiQuery({
+    queryKey: ["runs", "all"],
+    url: `/runs`,
+    schema: EvaluationRunListSchema,
+    refetchInterval: options?.refetchInterval,
+  });
+};
+
+export const useProjectRuns = (
+  projectId?: string,
+  options?: { refetchInterval?: number | false }
+) => {
+  return useApiQuery({
+    queryKey: ["runs", "project", projectId ?? ""],
+    url: `/projects/${projectId}/runs`,
+    schema: EvaluationRunListSchema,
+    enabled: !!projectId,
+    refetchInterval: options?.refetchInterval,
+  });
+};
+
+export const useCreateRun = (systemId: string) => {
+  return useApiMutation<RunCreateInput, EvaluationRunOutput>({
+    url: `/systems/${systemId}/runs`,
+    method: "POST",
+    schema: EvaluationRunSchema,
   });
 };
 

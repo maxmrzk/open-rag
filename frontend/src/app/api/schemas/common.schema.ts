@@ -18,7 +18,7 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
     data: dataSchema,
     success: z.boolean(),
-    message: z.string().optional(),
+    message: z.string().nullish(),
     pagination: PaginationSchema.optional(),
   });
 

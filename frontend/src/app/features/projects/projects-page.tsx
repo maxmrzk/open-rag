@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProjects, useCreateProject } from "../../hooks/useProjects";
-import { Plus, FolderKanban, Workflow, Play, Calendar, MoreHorizontal } from "lucide-react";
+import { Plus, FolderKanban, Workflow, Play, Calendar, ArrowRight } from "lucide-react";
 
 export function ProjectsPage() {
   const { data: projects, isLoading } = useProjects();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -39,6 +41,7 @@ export function ProjectsPage() {
         {projects?.map((project) => (
           <div
             key={project.id}
+            onClick={() => navigate(`/app/projects/${project.id}`)}
             className="bg-[#0d1117] border border-[#21262d] rounded-xl p-5 hover:border-[#30363d] transition-colors group cursor-pointer"
           >
             <div className="flex items-start justify-between mb-3">
@@ -54,9 +57,7 @@ export function ProjectsPage() {
                   </div>
                 </div>
               </div>
-              <button className="p-1 rounded hover:bg-[#21262d] opacity-0 group-hover:opacity-100 transition-opacity">
-                <MoreHorizontal className="w-4 h-4 text-[#8b949e]" />
-              </button>
+              <ArrowRight className="w-4 h-4 text-[#484f58] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
             {project.description && (

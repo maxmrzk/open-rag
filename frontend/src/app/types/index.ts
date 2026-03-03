@@ -80,10 +80,22 @@ export interface EvaluationRun {
   id: string;
   systemId: string;
   systemName: string;
+  projectId?: string | null;
+  projectName: string;
+  promptInput?: string | null;
   metrics: Metrics;
   configSnapshot: Record<string, unknown>;
   status: "completed" | "running" | "failed";
   createdAt: string;
+}
+
+export interface SystemSummary {
+  id: string;
+  projectId: string;
+  projectName: string;
+  name: string;
+  version: number;
+  updatedAt: string;
 }
 
 export interface RunComparison {

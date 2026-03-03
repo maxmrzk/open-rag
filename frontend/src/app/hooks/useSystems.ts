@@ -1,5 +1,9 @@
 import { useApiQuery, useApiMutation } from "./useApi";
-import { SystemDefinitionSchema, SystemListSchema } from "../api/schemas/system.schema";
+import {
+  SystemDefinitionSchema,
+  SystemListSchema,
+  SystemSummaryListSchema,
+} from "../api/schemas/system.schema";
 import type {
   SystemDefinitionOutput,
   SystemNodeOutput,
@@ -19,6 +23,14 @@ export const useSystems = (projectId?: string) => {
   });
 };
 
+export const useAllSystems = () => {
+  return useApiQuery({
+    queryKey: ["systems", "all"],
+    url: `/systems`,
+    schema: SystemSummaryListSchema,
+  });
+};
+
 export const useSystem = (systemId?: string) => {
   return useApiQuery({
     queryKey: ["system", systemId ?? ""],
@@ -35,6 +47,17 @@ export const useUpdateSystem = (systemId: string) => {
   >({
     url: `/systems/${systemId}`,
     method: "PUT",
+    schema: SystemDefinitionSchema,
+  });
+};
+
+export const useCreateSystem = (projectId: string) => {
+  return useApiMutation<
+    { name: string; nodes: SystemNodeOutput[]; edges: SystemEdgeOutput[] },
+    SystemDefinitionOutput
+  >({
+    url: `/projects/${projectId}/systems`,
+    method: "POST",
     schema: SystemDefinitionSchema,
   });
 };

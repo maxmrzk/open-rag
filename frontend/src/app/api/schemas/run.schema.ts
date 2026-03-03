@@ -21,6 +21,9 @@ export const EvaluationRunSchema = z.object({
   id: UUIDSchema,
   systemId: UUIDSchema,
   systemName: z.string(),
+  projectId: UUIDSchema.nullish(),
+  projectName: z.string().default(""),
+  promptInput: z.string().nullish(),
   metrics: MetricsSchema,
   configSnapshot: z.record(z.unknown()),
   status: RunStatusSchema,
@@ -34,6 +37,11 @@ export const RunComparisonSchema = z.object({
   comparedRunIds: z.array(UUIDSchema),
 });
 
+export const RunCreateSchema = z.object({
+  promptInput: z.string().nullish(),
+});
+
 export type MetricsOutput = z.infer<typeof MetricsSchema>;
 export type EvaluationRunOutput = z.infer<typeof EvaluationRunSchema>;
 export type RunComparisonInput = z.infer<typeof RunComparisonSchema>;
+export type RunCreateInput = z.infer<typeof RunCreateSchema>;

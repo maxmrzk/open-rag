@@ -26,22 +26,27 @@ import {
   Redo2,
   MousePointer2,
   Save,
-  Upload,
-  Download,
+  FolderOpen,
   BookOpen,
+  FolderKanban,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSystem, useUpdateSystem } from "../../hooks/useSystems";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  useSystem,
+  useUpdateSystem,
+  useCreateSystem as _useCreateSystem,
+} from "../../hooks/useSystems";
+import { useProjects, useCreateProject } from "../../hooks/useProjects";
 import { useUndoRedo } from "../../hooks/useUndoRedo";
-import { useComponentLibrary } from "../../hooks/useComponentLibrary";
+import { useCreateRun } from "../../hooks/useRuns";
 import { apiClient } from "../../api/client";
 import { customNodeTypes, nodeTypeLabels } from "./node-types";
 import { NodePalette, PALETTE_DND_TYPE } from "./node-palette";
 import type { PaletteDragItem } from "./node-palette";
 import { ConfigPanel } from "./config-panel";
 import { DockerExportModal } from "./docker-export-modal";
-import type { NodeType, SystemNode, SystemExport } from "../../types";
+import type { NodeType, SystemNode } from "../../types";
 import { toast } from "sonner";
 
 // ---------------------------------------------------------------------------
@@ -162,15 +167,17 @@ function CanvasDropZone({ onDropNode }: CanvasDropZoneProps) {
 function DesignerContent() {
   const [searchParams] = useSearchParams();
   const systemId = searchParams.get("systemId") ?? undefined;
+  const projectIdParam = searchParams.get("projectId") ?? undefined;
 
   const { data: system } = useSystem(systemId);
   const updateSystem = useUpdateSystem(systemId ?? "");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { components } = useComponentLibrary();
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [showDockerModal, setShowDockerModal] = useState(false);
+  const [showRunModal, setShowRunModal] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -212,22 +219,13 @@ function DesignerContent() {
 
   // ── Run System ──────────────────────────────────────────────────────────────
 
-  const { mutate: startRun } = useMutation({
-    mutationFn: () => apiClient.post(`/systems/${system?.id}/runs`, {}),
-    onSuccess: () => {
-      toast.success("Evaluation run started");
-      queryClient.invalidateQueries({ queryKey: ["runs", system?.id] });
-    },
-    onError: () => {
-      toast.error("Failed to start run — is the backend running?");
-    },
-  });
+  const createRun = useCreateRun(systemId ?? "");
 
   const handleRunSystem = () => {
     if (system?.id) {
-      startRun();
+      setShowRunModal(true);
     } else {
-      toast.error("No system loaded");
+      toast.error("Save the system to a project first before running");
     }
   };
 
@@ -397,72 +395,6 @@ function DesignerContent() {
     };
   }, [selectedNodeId, nodes]);
 
-  // ── Save / Load system JSON ───────────────────────────────────────────────
-
-  const handleSaveSetup = useCallback(() => {
-    const systemNodes = flowNodesToSystemNodes(nodes, edges);
-    const systemEdges = edges.map((e) => ({
-      id: e.id,
-      source: e.source,
-      target: e.target,
-    }));
-
-    // Collect referenced components
-    const usedComponentIds = new Set(systemNodes.map((n) => n.codeComponentId).filter(Boolean));
-    const usedComponents = components.filter((c) => usedComponentIds.has(c.id));
-
-    const exportData: SystemExport = {
-      version: "1.0",
-      exportedAt: new Date().toISOString(),
-      system: {
-        name: system?.name ?? "RAG System",
-        nodes: systemNodes,
-        edges: systemEdges,
-      },
-      components: usedComponents,
-    };
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${(system?.name ?? "rag-system").toLowerCase().replace(/\s+/g, "-")}-export.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("System exported as JSON");
-  }, [nodes, edges, system, components]);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleLoadSetup = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try {
-          const data: SystemExport = JSON.parse(ev.target?.result as string);
-          if (!data.system?.nodes || !data.system?.edges) throw new Error("Invalid format");
-
-          pushHistory({ nodes, edges });
-          const flowNodes = systemNodesToFlowNodes(data.system.nodes);
-          const flowEdges = systemEdgesToFlowEdges(data.system.edges);
-          setNodes(syncConnections(flowNodes, flowEdges));
-          setEdges(flowEdges);
-          setSelectedNodeId(null);
-          toast.success(`Loaded "${data.system.name}" (${flowNodes.length} nodes)`);
-        } catch {
-          toast.error("Invalid system JSON file");
-        }
-      };
-      reader.readAsText(file);
-      e.target.value = "";
-    },
-    [nodes, edges, pushHistory, setNodes, setEdges]
-  );
-
   const handleValidate = () => toast.success("System validation passed (mock)");
 
   return (
@@ -514,30 +446,15 @@ function DesignerContent() {
               Library
             </button>
 
-            {/* Save/Load */}
+            {/* Save to Project */}
             <button
-              onClick={handleSaveSetup}
-              title="Export system as JSON"
+              onClick={() => setShowSaveModal(true)}
+              title={system?.id ? "Save system to project" : "Save to a project"}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] text-[#8b949e] hover:text-white hover:bg-[#21262d] border border-[#21262d] transition-colors"
             >
-              <Download className="w-3.5 h-3.5 text-green-400" />
-              Export
+              <FolderOpen className="w-3.5 h-3.5 text-amber-400" />
+              {system?.id ? "Save" : "Save to Project"}
             </button>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              title="Import system from JSON"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] text-[#8b949e] hover:text-white hover:bg-[#21262d] border border-[#21262d] transition-colors"
-            >
-              <Upload className="w-3.5 h-3.5 text-amber-400" />
-              Import
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              className="hidden"
-              onChange={handleLoadSetup}
-            />
 
             <button
               onClick={handleValidate}
@@ -601,10 +518,303 @@ function DesignerContent() {
 
       {showDockerModal && <DockerExportModal onClose={() => setShowDockerModal(false)} />}
 
-      {/* Save icon hint */}
+      {showRunModal && (
+        <RunModal
+          systemId={system?.id ?? ""}
+          systemName={system?.name ?? ""}
+          createRun={createRun}
+          onClose={() => setShowRunModal(false)}
+          onSuccess={() => {
+            setShowRunModal(false);
+            queryClient.invalidateQueries({ queryKey: ["runs"] });
+            navigate(`/app/runs?systemId=${system?.id}`);
+          }}
+        />
+      )}
+
+      {showSaveModal && (
+        <SaveToProjectModal
+          currentSystem={system ?? null}
+          currentNodes={nodes}
+          currentEdges={edges}
+          onClose={() => setShowSaveModal(false)}
+          onSaved={(newSystemId) => {
+            setShowSaveModal(false);
+            if (newSystemId && newSystemId !== system?.id) {
+              navigate(`/app/designer?systemId=${newSystemId}`);
+            } else {
+              persistToBackend(nodes, edges);
+              toast.success("System saved");
+            }
+            queryClient.invalidateQueries({ queryKey: ["systems"] });
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+          }}
+          projectIdParam={projectIdParam}
+        />
+      )}
+
+      {/* Hint */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 text-[10px] text-[#484f58] pointer-events-none select-none">
         <Save className="w-3 h-3" />
         Double-click any node label to rename · Ctrl+Z/Y to undo/redo
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Run Modal — prompt/document input before starting a run
+// ---------------------------------------------------------------------------
+
+function RunModal({
+  systemId,
+  systemName,
+  createRun,
+  onClose,
+  onSuccess,
+}: {
+  systemId: string;
+  systemName: string;
+  createRun: ReturnType<typeof useCreateRun>;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [promptInput, setPromptInput] = useState("");
+
+  const handleRun = () => {
+    if (!systemId) return;
+    createRun.mutate(
+      { promptInput: promptInput.trim() || undefined },
+      {
+        onSuccess: () => {
+          toast.success(`Run started for "${systemName}"`);
+          onSuccess();
+        },
+        onError: () => {
+          toast.error("Failed to start run — is the backend running?");
+        },
+      }
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      <div className="bg-[#0d1117] border border-[#30363d] rounded-xl w-full max-w-lg p-6">
+        <div className="flex items-center gap-2 mb-1">
+          <Play className="w-4 h-4 text-green-400" />
+          <h2 className="text-[16px] text-white">Run System</h2>
+        </div>
+        <p className="text-[12px] text-[#8b949e] mb-4">
+          The <span className="text-cyan-400">Document Loader</span> node will receive the text you
+          paste below as input. Leave blank to use a synthetic benchmark dataset.
+        </p>
+
+        <div className="space-y-3">
+          <div>
+            <label className="block text-[12px] text-[#8b949e] mb-1.5">
+              Prompt / Document Input <span className="text-[10px] text-[#484f58]">(optional)</span>
+            </label>
+            <textarea
+              value={promptInput}
+              onChange={(e) => setPromptInput(e.target.value)}
+              placeholder="Paste your PDF content, document text, or evaluation query here…"
+              rows={6}
+              className="w-full px-3 py-2 rounded-lg bg-[#161b22] border border-[#21262d] text-[12px] text-white placeholder:text-[#484f58] focus:outline-none focus:border-green-500 resize-none font-mono"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 mt-5">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-[13px] text-[#8b949e] hover:text-white hover:bg-[#21262d] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleRun}
+            disabled={createRun.isPending}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-500 text-white text-[13px] transition-colors disabled:opacity-40"
+          >
+            <Play className="w-3.5 h-3.5" />
+            {createRun.isPending ? "Starting…" : "Start Run"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Save to Project Modal
+// ---------------------------------------------------------------------------
+
+function SaveToProjectModal({
+  currentSystem,
+  currentNodes,
+  currentEdges,
+  onClose,
+  onSaved,
+  projectIdParam,
+}: {
+  currentSystem: { id: string; projectId: string; name: string } | null;
+  currentNodes: Node[];
+  currentEdges: Edge[];
+  onClose: () => void;
+  onSaved: (newSystemId?: string) => void;
+  projectIdParam?: string;
+}) {
+  const { data: projects } = useProjects();
+  const createProject = useCreateProject();
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(
+    currentSystem?.projectId ?? projectIdParam ?? ""
+  );
+  const [isNewProject, setIsNewProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [systemName, setSystemName] = useState(currentSystem?.name ?? "My RAG System");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const effectiveProjectId = isNewProject ? "" : selectedProjectId;
+  const isExistingSystem = !!currentSystem?.id && selectedProjectId === currentSystem?.projectId;
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      let projectId = effectiveProjectId;
+
+      // Create project if needed
+      if (isNewProject) {
+        if (!newProjectName.trim()) {
+          toast.error("Project name is required");
+          setIsSaving(false);
+          return;
+        }
+        const newProject = await createProject.mutateAsync({
+          name: newProjectName.trim(),
+        });
+        projectId = newProject.id;
+      }
+
+      if (!projectId) {
+        toast.error("Please select or create a project");
+        setIsSaving(false);
+        return;
+      }
+
+      if (isExistingSystem) {
+        // Already in right project — signal to parent to auto-save
+        onSaved(undefined);
+        return;
+      }
+
+      // Build payload
+      const systemNodes = flowNodesToSystemNodes(currentNodes, currentEdges);
+      const systemEdgesPayload = currentEdges.map((e) => ({
+        id: e.id,
+        source: e.source,
+        target: e.target,
+      }));
+
+      const response: any = await apiClient.post(`/projects/${projectId}/systems`, {
+        name: systemName.trim() || "RAG System",
+        nodes: systemNodes,
+        edges: systemEdgesPayload,
+      });
+
+      const newSystemId: string = response?.data?.id ?? response?.id;
+      onSaved(newSystemId);
+      toast.success(`Saved "${systemName}" to project`);
+    } catch {
+      toast.error("Failed to save system");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      <div className="bg-[#0d1117] border border-[#30363d] rounded-xl w-full max-w-md p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <FolderKanban className="w-4 h-4 text-indigo-400" />
+          <h2 className="text-[16px] text-white">Save to Project</h2>
+        </div>
+
+        <div className="space-y-3">
+          {/* System name */}
+          <div>
+            <label className="block text-[12px] text-[#8b949e] mb-1.5">System Name</label>
+            <input
+              value={systemName}
+              onChange={(e) => setSystemName(e.target.value)}
+              placeholder="e.g., Customer Support RAG"
+              className="w-full px-3 py-2 rounded-lg bg-[#161b22] border border-[#21262d] text-[13px] text-white placeholder:text-[#484f58] focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          {/* Project picker */}
+          <div>
+            <label className="block text-[12px] text-[#8b949e] mb-1.5">Project</label>
+            <select
+              value={isNewProject ? "__new__" : selectedProjectId}
+              onChange={(e) => {
+                if (e.target.value === "__new__") {
+                  setIsNewProject(true);
+                  setSelectedProjectId("");
+                } else {
+                  setIsNewProject(false);
+                  setSelectedProjectId(e.target.value);
+                }
+              }}
+              className="w-full px-3 py-2 rounded-lg bg-[#161b22] border border-[#21262d] text-[13px] text-white focus:outline-none focus:border-indigo-500"
+            >
+              <option value="">— Select a project —</option>
+              {projects?.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+              <option value="__new__">+ Create new project…</option>
+            </select>
+          </div>
+
+          {/* New project name */}
+          {isNewProject && (
+            <div>
+              <label className="block text-[12px] text-[#8b949e] mb-1.5">New Project Name</label>
+              <input
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                placeholder="e.g., Customer Support"
+                className="w-full px-3 py-2 rounded-lg bg-[#161b22] border border-[#21262d] text-[13px] text-white placeholder:text-[#484f58] focus:outline-none focus:border-indigo-500"
+                autoFocus
+              />
+            </div>
+          )}
+
+          {isExistingSystem && (
+            <p className="text-[11px] text-amber-400 bg-amber-400/10 rounded-lg px-3 py-2">
+              This system is already saved in this project. Clicking Save will persist the current
+              canvas state.
+            </p>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-2 mt-5">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-[13px] text-[#8b949e] hover:text-white hover:bg-[#21262d] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving || (!isNewProject && !selectedProjectId)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[13px] transition-colors disabled:opacity-40"
+          >
+            <FolderOpen className="w-3.5 h-3.5" />
+            {isSaving ? "Saving…" : "Save"}
+          </button>
+        </div>
       </div>
     </div>
   );
