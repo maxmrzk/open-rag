@@ -39,7 +39,9 @@ export function RunsPage() {
   };
 
   // Group systems by project for the dropdown
-  const systemsByProject = allSystems?.reduce<Record<string, { projectName: string; systems: typeof allSystems }>>((acc, sys) => {
+  const systemsByProject = allSystems?.reduce<
+    Record<string, { projectName: string; systems: typeof allSystems }>
+  >((acc, sys) => {
     if (!acc[sys.projectId]) acc[sys.projectId] = { projectName: sys.projectName, systems: [] };
     acc[sys.projectId].systems.push(sys);
     return acc;

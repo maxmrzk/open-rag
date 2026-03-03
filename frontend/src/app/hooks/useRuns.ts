@@ -1,5 +1,9 @@
 import { useApiQuery, useApiMutation } from "./useApi";
-import { EvaluationRunListSchema, EvaluationRunSchema, RunCreateSchema } from "../api/schemas/run.schema";
+import {
+  EvaluationRunListSchema,
+  EvaluationRunSchema,
+  RunCreateSchema,
+} from "../api/schemas/run.schema";
 import type { RunCreateInput, EvaluationRunOutput } from "../api/schemas/run.schema";
 
 // ============================================================
@@ -25,7 +29,10 @@ export const useAllRuns = (options?: { refetchInterval?: number | false }) => {
   });
 };
 
-export const useProjectRuns = (projectId?: string, options?: { refetchInterval?: number | false }) => {
+export const useProjectRuns = (
+  projectId?: string,
+  options?: { refetchInterval?: number | false }
+) => {
   return useApiQuery({
     queryKey: ["runs", "project", projectId ?? ""],
     url: `/projects/${projectId}/runs`,

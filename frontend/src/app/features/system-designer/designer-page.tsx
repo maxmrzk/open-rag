@@ -32,7 +32,11 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useSystem, useUpdateSystem, useCreateSystem as _useCreateSystem } from "../../hooks/useSystems";
+import {
+  useSystem,
+  useUpdateSystem,
+  useCreateSystem as _useCreateSystem,
+} from "../../hooks/useSystems";
 import { useProjects, useCreateProject } from "../../hooks/useProjects";
 import { useUndoRedo } from "../../hooks/useUndoRedo";
 import { useCreateRun } from "../../hooks/useRuns";
@@ -608,8 +612,7 @@ function RunModal({
         <div className="space-y-3">
           <div>
             <label className="block text-[12px] text-[#8b949e] mb-1.5">
-              Prompt / Document Input{" "}
-              <span className="text-[10px] text-[#484f58]">(optional)</span>
+              Prompt / Document Input <span className="text-[10px] text-[#484f58]">(optional)</span>
             </label>
             <textarea
               value={promptInput}

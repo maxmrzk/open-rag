@@ -202,7 +202,9 @@ export function EvaluationsPage() {
                       <div className="text-[12px] text-white">{run.systemName}</div>
                       <div className="text-[10px] text-[#484f58] font-mono mt-0.5">
                         {run.projectName && (
-                          <span className="text-[10px] text-indigo-400/70">{run.projectName} · </span>
+                          <span className="text-[10px] text-indigo-400/70">
+                            {run.projectName} ·{" "}
+                          </span>
                         )}
                         {run.id.slice(0, 12)}…
                       </div>

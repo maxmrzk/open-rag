@@ -219,8 +219,12 @@ export function ProjectDetailPage() {
                       </td>
                       <td className="px-4 py-3 max-w-[160px]">
                         {run.promptInput ? (
-                          <span className="text-[11px] text-[#8b949e] truncate block" title={run.promptInput}>
-                            {run.promptInput.slice(0, 60)}{run.promptInput.length > 60 ? "…" : ""}
+                          <span
+                            className="text-[11px] text-[#8b949e] truncate block"
+                            title={run.promptInput}
+                          >
+                            {run.promptInput.slice(0, 60)}
+                            {run.promptInput.length > 60 ? "…" : ""}
                           </span>
                         ) : (
                           <span className="text-[11px] text-[#484f58]">—</span>
