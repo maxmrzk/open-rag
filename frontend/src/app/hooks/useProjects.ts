@@ -14,6 +14,15 @@ export const useProjects = () => {
   });
 };
 
+export const useProject = (projectId?: string) => {
+  return useApiQuery({
+    queryKey: ["project", projectId ?? ""],
+    url: `/projects/${projectId}`,
+    schema: ProjectSchema,
+    enabled: !!projectId,
+  });
+};
+
 export const useCreateProject = () => {
   return useApiMutation<ProjectInput, ProjectOutput>({
     url: "/projects",

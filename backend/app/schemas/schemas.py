@@ -146,8 +146,28 @@ class SystemOut(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# System summary (for dropdown selectors)
+# ---------------------------------------------------------------------------
+
+
+class SystemSummaryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    projectId: uuid.UUID
+    projectName: str
+    name: str
+    version: int
+    updatedAt: datetime
+
+
+# ---------------------------------------------------------------------------
 # Metrics / Runs
 # ---------------------------------------------------------------------------
+
+
+class RunCreate(BaseModel):
+    promptInput: str | None = None
 
 
 class MetricsOut(BaseModel):
@@ -166,6 +186,9 @@ class EvaluationRunOut(BaseModel):
     id: uuid.UUID
     systemId: uuid.UUID
     systemName: str
+    projectId: uuid.UUID
+    projectName: str
+    promptInput: str | None = None
     metrics: MetricsOut
     configSnapshot: dict[str, Any]
     status: str

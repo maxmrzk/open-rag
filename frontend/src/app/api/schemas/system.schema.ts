@@ -26,7 +26,7 @@ export const SystemNodeSchema = z.object({
     x: z.number(),
     y: z.number(),
   }),
-  codeComponentId: z.string().uuid().optional(),
+  codeComponentId: z.string().uuid().nullish(),
   inputs: z.array(z.string()).default([]),
   outputs: z.array(z.string()).default([]),
 });
@@ -50,6 +50,19 @@ export const SystemDefinitionSchema = z.object({
 
 export const SystemListSchema = z.array(SystemDefinitionSchema);
 
+/** Light summary used in dropdown selectors (all systems across all projects). */
+export const SystemSummarySchema = z.object({
+  id: UUIDSchema,
+  projectId: UUIDSchema,
+  projectName: z.string(),
+  name: z.string(),
+  version: z.number().int().min(1),
+  updatedAt: TimestampSchema,
+});
+
+export const SystemSummaryListSchema = z.array(SystemSummarySchema);
+
 export type SystemNodeOutput = z.infer<typeof SystemNodeSchema>;
 export type SystemEdgeOutput = z.infer<typeof SystemEdgeSchema>;
 export type SystemDefinitionOutput = z.infer<typeof SystemDefinitionSchema>;
+export type SystemSummaryOutput = z.infer<typeof SystemSummarySchema>;

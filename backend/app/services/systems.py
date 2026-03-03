@@ -7,7 +7,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models.models import SystemDefinition, SystemEdge, SystemNode
+from app.models.models import Project, SystemDefinition, SystemEdge, SystemNode
 from app.schemas.schemas import SystemCreate, SystemUpdate
 
 
@@ -59,6 +59,38 @@ async def list_systems(
     )
     systems = result.scalars().all()
     return [_system_to_dict(s) for s in systems], total
+
+
+async def list_all_systems(
+    db: AsyncSession,
+    page: int = 1,
+    page_size: int = 200,
+) -> tuple[list[dict], int]:
+    """Return a lightweight summary of all systems across all projects (for dropdowns)."""
+    offset = (page - 1) * page_size
+
+    total_result = await db.execute(select(func.count(SystemDefinition.id)))
+    total = total_result.scalar_one()
+
+    result = await db.execute(
+        select(SystemDefinition, Project.name.label("project_name"))
+        .join(Project, SystemDefinition.project_id == Project.id)
+        .order_by(Project.name, SystemDefinition.name)
+        .offset(offset)
+        .limit(page_size)
+    )
+    rows = result.all()
+    return [
+        {
+            "id": row[0].id,
+            "projectId": row[0].project_id,
+            "projectName": row[1],
+            "name": row[0].name,
+            "version": row[0].version,
+            "updatedAt": row[0].updated_at,
+        }
+        for row in rows
+    ], total
 
 
 async def get_system(db: AsyncSession, system_id: uuid.UUID) -> dict | None:

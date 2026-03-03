@@ -8,6 +8,8 @@ A full-stack application for designing, evaluating, and deploying RAG (Retrieval
 
 ## Dev Setup
 
+Tested and ran on `Ubuntu VERSION="24.04.1 LTS (Noble Numbat)"`. Windows might cause problems with the alembic setup (not tested properly).
+
 ### Prerequisites
 
 - [uv](https://docs.astral.sh/uv/) — Python package manager
@@ -110,6 +112,20 @@ Run once after first deploy, and after each release that includes schema changes
 ```bash
 docker compose exec api alembic upgrade head
 ```
+
+### Accessing the application
+
+Once all containers are up (`docker compose up -d --build`) and migrations have run:
+
+| Service | URL | Notes |
+|---|---|---|
+| REST API | http://localhost:8000 | FastAPI backend |
+| API docs (Swagger) | http://localhost:8000/docs | Interactive API explorer |
+| API docs (ReDoc) | http://localhost:8000/redoc | Alternative API reference |
+| Qdrant dashboard | http://localhost:6333/dashboard | Vector DB UI |
+| Neo4j browser | http://localhost:7474 | Graph DB UI (user: `neo4j`, password: `changeme`) |
+
+> **Frontend:** not included in `docker-compose.yml`. Run it separately with `pnpm dev` (see [Dev Setup](#dev-setup) above) — it connects to the API at `http://localhost:8000/api/v1`.
 
 ---
 
