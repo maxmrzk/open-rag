@@ -8,7 +8,6 @@ import {
   Play,
   Container,
   Monitor,
-  Download,
   ArrowRight,
   Github,
   Terminal,
@@ -66,7 +65,7 @@ const ELECTRON_RELEASES = [
 const DOCKER_COMPOSE = `version: "3.9"
 services:
   rag-builder:
-    image: ghcr.io/your-org/rag-builder:latest
+    image: ghcr.io/maxmrzk/open-rag:latest
     ports:
       - "3000:3000"
     volumes:
@@ -74,8 +73,8 @@ services:
     environment:
       - NODE_ENV=production`;
 
-const GIT_CLONE = `git clone https://github.com/your-org/rag-builder
-cd rag-builder && pnpm install && pnpm dev`;
+const GIT_CLONE = `git clone https://github.com/maxmrzk/open-rag
+cd open-rag && pnpm install && pnpm dev`;
 
 // ── Features ─────────────────────────────────────────────────────────────────
 const FEATURES = [
@@ -197,7 +196,7 @@ export function LandingPage() {
           {/* Actions */}
           <div className="flex items-center gap-3">
             <a
-              href="https://github.com/your-org/rag-builder"
+              href="https://github.com/maxmrzk/open-rag"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] text-[#8b949e] hover:text-white hover:bg-[#161b22] border border-[#21262d] hover:border-[#30363d] transition-all"
@@ -288,7 +287,7 @@ export function LandingPage() {
             </button>
 
             <a
-              href="https://github.com/your-org/rag-builder"
+              href="https://github.com/maxmrzk/open-rag"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-2 px-6 py-3 rounded-xl border border-[#21262d] bg-transparent hover:bg-[#161b22] text-[#8b949e] hover:text-white text-[14px] transition-all"
@@ -311,7 +310,7 @@ export function LandingPage() {
                 </span>
               </div>
               <img
-                src="https://images.unsplash.com/photo-1664854953181-b12e6dda8b7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrbm93bGVkZ2UlMjBncmFwaCUyMGRhdGElMjB2aXN1YWxpemF0aW9uJTIwbm9kZXN8ZW58MXx8fHwxNzcxOTcwODMwfDA&ixlib=rb-4.1.0&q=80&w=1080"
+                src="/demo.png"
                 alt="RAG Builder system designer"
                 className="w-full h-72 object-cover object-top opacity-80"
               />
@@ -449,7 +448,7 @@ export function LandingPage() {
                 </div>
 
                 <a
-                  href="https://github.com/your-org/rag-builder/blob/main/DEPLOYMENT.md"
+                  href="https://maxmrzk.github.io/open-rag/guide/deployment"
                   target="_blank"
                   rel="noreferrer"
                   className="mt-4 flex items-center gap-1.5 text-[12px] text-indigo-400 hover:text-indigo-300 transition-colors"
@@ -480,26 +479,17 @@ export function LandingPage() {
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
                 {ELECTRON_RELEASES.map((rel) => (
-                  <button
+                  <div
                     key={rel.file}
-                    onClick={() =>
-                      alert(
-                        `Download stub: ${rel.file}\n\nConnect your GitHub Releases to serve real binaries.`
-                      )
-                    }
-                    className="group flex flex-col items-start p-4 rounded-xl border border-[#21262d] bg-[#161b22] hover:bg-[#1f2937] hover:border-indigo-500/30 transition-all text-left"
+                    className="flex flex-col items-start p-4 rounded-xl border border-[#21262d] bg-[#161b22] opacity-60 cursor-not-allowed text-left"
                   >
                     <div className="text-[22px] mb-2">{rel.icon}</div>
                     <div className="text-[13px] text-white">{rel.os}</div>
                     <div className="text-[10px] text-[#8b949e] mb-3">{rel.arch}</div>
                     <div className="flex items-center gap-1.5 mt-auto">
-                      <Download className="w-3.5 h-3.5 text-indigo-400" />
-                      <span className="text-[11px] text-indigo-400 group-hover:text-indigo-300">
-                        {rel.ext}
-                      </span>
-                      <span className="text-[10px] text-[#484f58] ml-auto">{rel.size}</span>
+                      <span className="text-[11px] text-[#484f58] italic">Coming soon</span>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
 
@@ -625,7 +615,7 @@ export function LandingPage() {
           </div>
           <div className="flex items-center gap-5 text-[12px] text-[#484f58]">
             <a
-              href="https://github.com/your-org/rag-builder"
+              href="https://github.com/maxmrzk/open-rag"
               target="_blank"
               rel="noreferrer"
               className="hover:text-[#c9d1d9] transition-colors flex items-center gap-1"
@@ -634,15 +624,13 @@ export function LandingPage() {
               GitHub
             </a>
             <a
-              href="https://github.com/your-org/rag-builder/blob/main/DEPLOYMENT.md"
+              href="https://maxmrzk.github.io/open-rag/"
               target="_blank"
               rel="noreferrer"
               className="hover:text-[#c9d1d9] transition-colors"
             >
               Docs
             </a>
-            <span className="text-[#21262d]">·</span>
-            <span>MIT License</span>
             <span className="text-[#21262d]">·</span>
             <span>Code never leaves your machine</span>
           </div>
