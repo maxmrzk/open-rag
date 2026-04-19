@@ -16,7 +16,6 @@ jobs:
   deploy-demo:
     name: Build and Deploy Demo (Frontend)
     runs-on: ubuntu-latest
-    environment: demo
     env:
       DEMO_PORT: ${{ vars.DEMO_PORT || '4173' }}
       DEPLOY_PATH: ${{ vars.DEMO_DEPLOY_PATH }}
@@ -84,7 +83,8 @@ jobs:
             if [ -z "${DEPLOY_PATH:-}" ]; then
               DEPLOY_PATH="$HOME/open-rag-demo-frontend"
             fi
-            
+
+            # Load nvm-managed Node.js for non-interactive SSH sessions
             export NVM_DIR="$HOME/.nvm"
             if [ -s "$NVM_DIR/nvm.sh" ]; then
               . "$NVM_DIR/nvm.sh"
@@ -97,10 +97,27 @@ jobs:
               exit 1
             fi
 
+            echo "Using node: $(command -v node) ($(node -v))"
+            if command -v npm >/dev/null 2>&1; then
+              echo "Using npm: $(command -v npm) ($(npm -v))"
+            else
+              echo "npm is required on VPS for demo hosting"
+              exit 1
+            fi
+
             if ! command -v pm2 >/dev/null 2>&1; then
               npm install -g pm2 serve
             elif ! command -v serve >/dev/null 2>&1; then
               npm install -g serve
+            fi
+
+            PM2_BIN="$(command -v pm2 || true)"
+            SERVE_BIN="$(command -v serve || true)"
+            if [ -z "$PM2_BIN" ] || [ -z "$SERVE_BIN" ]; then
+              echo "pm2 or serve not found on PATH after installation"
+              echo "pm2 path: ${PM2_BIN:-<missing>}"
+              echo "serve path: ${SERVE_BIN:-<missing>}"
+              exit 1
             fi
 
             mkdir -p "$DEPLOY_PATH/releases" "$DEPLOY_PATH/shared"
@@ -116,7 +133,7 @@ jobs:
                 {
                   name: "open-rag-demo-frontend",
                   cwd: "$DEPLOY_PATH/current",
-                  script: "serve",
+                  script: "$SERVE_BIN",
                   args: "-s . -l $DEMO_PORT",
                   env: {
                     NODE_ENV: "production"
@@ -126,8 +143,8 @@ jobs:
             };
             EOF
 
-            pm2 startOrReload "$DEPLOY_PATH/shared/ecosystem.config.cjs"
-            pm2 save
+            "$PM2_BIN" startOrReload "$DEPLOY_PATH/shared/ecosystem.config.cjs"
+            "$PM2_BIN" save
 
             # Keep only last 5 releases
             ls -1dt "$DEPLOY_PATH"/releases/* | tail -n +6 | xargs -r rm -rf
