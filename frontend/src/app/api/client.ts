@@ -1,8 +1,11 @@
 // ============================================================
-// API Client — Pre-provisioned for future backend integration
+// API Client — backend or local demo-mode transport
 // ============================================================
 
+import { handleDemoApiRequest } from "../mock/demo-api";
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 
 interface RequestConfig {
   headers?: Record<string, string>;
@@ -22,6 +25,10 @@ class ApiClient {
     body?: unknown,
     config?: RequestConfig
   ): Promise<T> {
+    if (DEMO_MODE) {
+      return handleDemoApiRequest<T>(method, url, body);
+    }
+
     const response = await fetch(`${this.baseUrl}${url}`, {
       method,
       headers: {
