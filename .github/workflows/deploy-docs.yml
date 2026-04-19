@@ -1,0 +1,67 @@
+name: Deploy Docs to GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: false
+        default: "github-pages"
+        type: choice
+        options:
+          - github-pages
+
+# Allow only one concurrent deployment, skipping queued runs but not cancelling in-progress ones.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # needed for git-based lastUpdated in VitePress
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: docs/package.json
+
+      - name: Install dependencies
+        working-directory: docs
+        run: npm install
+
+      - name: Build VitePress site
+        working-directory: docs
+        run: npm run build
+
+      - name: Add .nojekyll (prevents GitHub Pages from ignoring _ prefixed files)
+        run: touch docs/.vitepress/dist/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
