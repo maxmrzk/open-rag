@@ -27,7 +27,9 @@ export function ApiKeyRow({ apiKey, onDeleted }: { apiKey: ApiKeyOutput; onDelet
     <div className="flex items-center justify-between py-3 px-3 rounded-lg bg-[#161b22] border border-[#21262d]">
       <div>
         <div className="text-[12px] text-white font-mono">{apiKey.name}</div>
-        <div className="text-[10px] text-[#484f58] mt-0.5">Last used: {formatLastUsed(apiKey.lastUsed)}</div>
+        <div className="text-[10px] text-[#484f58] mt-0.5">
+          Last used: {formatLastUsed(apiKey.lastUsed)}
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <span className="text-[11px] text-[#484f58] font-mono">{apiKey.value}</span>

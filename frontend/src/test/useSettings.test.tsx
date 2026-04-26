@@ -65,7 +65,9 @@ describe("useSettings hooks", () => {
     });
     vi.mocked(apiClient.delete).mockResolvedValue({ success: true, data: null });
 
-    const { result: createResult } = renderHook(() => useCreateApiKey(), { wrapper: makeWrapper() });
+    const { result: createResult } = renderHook(() => useCreateApiKey(), {
+      wrapper: makeWrapper(),
+    });
     createResult.current.mutate({ name: "OPENAI_API_KEY", value: "sk-secret-value" });
 
     await waitFor(() => expect(createResult.current.isSuccess).toBe(true));
@@ -114,7 +116,9 @@ describe("useSettings hooks", () => {
     await waitFor(() => expect(defaultsResult.current.isSuccess).toBe(true));
     expect(defaultsResult.current.data?.chunkSize).toBe("512");
 
-    const { result: updateResult } = renderHook(() => useUpdateDefaults(), { wrapper: makeWrapper() });
+    const { result: updateResult } = renderHook(() => useUpdateDefaults(), {
+      wrapper: makeWrapper(),
+    });
     updateResult.current.mutate({
       chunkSize: "1024",
       chunkOverlap: "64",

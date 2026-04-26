@@ -90,3 +90,4 @@ ehthumbs.db
 # ─────────────────────────────────────────────────────────────────────────────
 docker-compose.override.yml
 Agents.md
+package-lock.json
