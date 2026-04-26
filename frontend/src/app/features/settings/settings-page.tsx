@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Key, Server, Globe, Shield } from "lucide-react";
-import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { settingsQueryKeys, useApiKeys } from "../../hooks/useSettings";
+import { AddApiKeyModal } from "./add-api-key-modal";
+import { ApiKeyRow } from "./api-key-row";
+import { DefaultsForm } from "./defaults-form";
 
 interface SettingSection {
   id: string;
@@ -13,12 +17,6 @@ const sections: SettingSection[] = [
   { id: "infrastructure", label: "Infrastructure", icon: Server },
   { id: "defaults", label: "Default Configs", icon: Globe },
   { id: "security", label: "Security", icon: Shield },
-];
-
-const mockApiKeys = [
-  { id: "1", name: "OPENAI_API_KEY", value: "sk-...Xk9f", lastUsed: "2026-02-24T08:00:00Z" },
-  { id: "2", name: "COHERE_API_KEY", value: "co-...M2hf", lastUsed: "2026-02-23T14:30:00Z" },
-  { id: "3", name: "PINECONE_API_KEY", value: "pc-...9dFa", lastUsed: "2026-02-22T10:15:00Z" },
 ];
 
 export function SettingsPage() {
@@ -56,7 +54,7 @@ export function SettingsPage() {
         <div className="flex-1">
           {activeSection === "api-keys" && <ApiKeysSection />}
           {activeSection === "infrastructure" && <InfraSection />}
-          {activeSection === "defaults" && <DefaultsSection />}
+          {activeSection === "defaults" && <DefaultsForm />}
           {activeSection === "security" && <SecuritySection />}
         </div>
       </div>
@@ -65,38 +63,65 @@ export function SettingsPage() {
 }
 
 function ApiKeysSection() {
+  const queryClient = useQueryClient();
+  const { data: apiKeys, isLoading, isError, refetch } = useApiKeys();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
   return (
     <div className="bg-[#0d1117] border border-[#21262d] rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[14px] text-white">API Keys</h3>
         <button
-          onClick={() => toast.success("Add key dialog (mock)")}
+          onClick={() => setIsCreateOpen(true)}
           className="px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-[12px] transition-colors"
         >
           + Add Key
         </button>
       </div>
-      <div className="space-y-2">
-        {mockApiKeys.map((key) => (
-          <div
-            key={key.id}
-            className="flex items-center justify-between py-3 px-3 rounded-lg bg-[#161b22] border border-[#21262d]"
+
+      {isLoading && <div className="text-[12px] text-[#8b949e]">Loading API keys...</div>}
+
+      {isError && (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+          <div className="text-[12px] text-red-300">Failed to load API keys.</div>
+          <button
+            onClick={() => refetch()}
+            className="mt-2 px-2.5 py-1 rounded text-[11px] text-red-300 hover:bg-red-400/10 transition-colors"
           >
-            <div>
-              <div className="text-[12px] text-white font-mono">{key.name}</div>
-              <div className="text-[10px] text-[#484f58] mt-0.5">
-                Last used: {new Date(key.lastUsed).toLocaleDateString()}
-              </div>
+            Retry
+          </button>
+        </div>
+      )}
+
+      {!isLoading && !isError && (
+        <div className="space-y-2">
+          {apiKeys?.length ? (
+            apiKeys.map((key) => (
+              <ApiKeyRow
+                key={key.id}
+                apiKey={key}
+                onDeleted={() => {
+                  queryClient.invalidateQueries({ queryKey: settingsQueryKeys.apiKeys });
+                }}
+              />
+            ))
+          ) : (
+            <div className="rounded-lg border border-[#21262d] bg-[#161b22] p-4 text-[12px] text-[#8b949e]">
+              No API keys stored yet. Add your first key to run provider-backed evaluations.
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] text-[#484f58] font-mono">{key.value}</span>
-              <button className="px-2 py-1 rounded text-[11px] text-red-400 hover:bg-red-400/10 transition-colors">
-                Revoke
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          )}
+        </div>
+      )}
+
+      {isCreateOpen && (
+        <AddApiKeyModal
+          onClose={() => setIsCreateOpen(false)}
+          onCreated={() => {
+            setIsCreateOpen(false);
+            queryClient.invalidateQueries({ queryKey: settingsQueryKeys.apiKeys });
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -120,41 +145,6 @@ function InfraSection() {
             <span className="text-[12px] text-white font-mono">{item.value}</span>
           </div>
         ))}
-      </div>
-    </div>
-  );
-}
-
-function DefaultsSection() {
-  return (
-    <div className="bg-[#0d1117] border border-[#21262d] rounded-xl p-5">
-      <h3 className="text-[14px] text-white mb-4">Default Configurations</h3>
-      <div className="space-y-4">
-        {[
-          { label: "Chunk Size", value: "512" },
-          { label: "Chunk Overlap", value: "64" },
-          { label: "Embedding Model", value: "text-embedding-3-large" },
-          { label: "LLM Model", value: "gpt-4o" },
-          { label: "Temperature", value: "0.1" },
-          { label: "Top K Retrieval", value: "10" },
-        ].map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center justify-between py-2 border-b border-[#161b22]"
-          >
-            <span className="text-[12px] text-[#8b949e]">{item.label}</span>
-            <input
-              defaultValue={item.value}
-              className="w-48 px-2 py-1 rounded bg-[#161b22] border border-[#21262d] text-[12px] text-white font-mono text-right focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-        ))}
-        <button
-          onClick={() => toast.success("Defaults saved (mock)")}
-          className="mt-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[12px] transition-colors"
-        >
-          Save Defaults
-        </button>
       </div>
     </div>
   );
