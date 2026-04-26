@@ -89,3 +89,4 @@ ehthumbs.db
 # Docker / container artifacts
 # ─────────────────────────────────────────────────────────────────────────────
 docker-compose.override.yml
+Agents.md

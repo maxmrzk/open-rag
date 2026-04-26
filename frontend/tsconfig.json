@@ -3,6 +3,12 @@
     "moduleResolution": "bundler",
     "module": "ESNext",
     "jsx": "react-jsx",
-    "types": ["node", "vitest/globals", "@testing-library/jest-dom"]
+    "types": [
+      "node",
+      "react",
+      "react-dom",
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ]
   }
 }

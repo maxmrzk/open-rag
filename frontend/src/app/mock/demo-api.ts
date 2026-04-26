@@ -65,6 +65,24 @@ type DemoState = {
   projects: Project[];
   systems: System[];
   runs: Run[];
+  apiKeys: ApiKey[];
+  defaults: Defaults;
+};
+
+type ApiKey = {
+  id: string;
+  name: string;
+  value: string;
+  lastUsed: string | null;
+};
+
+type Defaults = {
+  chunkSize: string;
+  chunkOverlap: string;
+  embeddingModel: string;
+  llmModel: string;
+  temperature: string;
+  topK: string;
 };
 
 function clone<T>(value: T): T {
@@ -87,6 +105,28 @@ let state: DemoState = {
   projects: clone(mockProjects),
   systems: clone(mockSystems),
   runs: clone(mockRuns),
+  apiKeys: [
+    {
+      id: crypto.randomUUID(),
+      name: "OPENAI_API_KEY",
+      value: "sk-...Xk9f",
+      lastUsed: "2026-02-24T08:00:00Z",
+    },
+    {
+      id: crypto.randomUUID(),
+      name: "COHERE_API_KEY",
+      value: "co-...M2hf",
+      lastUsed: "2026-02-23T14:30:00Z",
+    },
+  ],
+  defaults: {
+    chunkSize: "512",
+    chunkOverlap: "64",
+    embeddingModel: "text-embedding-3-large",
+    llmModel: "gpt-4o",
+    temperature: "0.1",
+    topK: "10",
+  },
 };
 
 function recalcProjectCounts() {
@@ -276,6 +316,52 @@ export async function handleDemoApiRequest<T>(
 
   if (method === "GET" && path === "/runs") {
     return ok(clone(state.runs.map(enrichRun))) as T;
+  }
+
+  if (method === "GET" && path === "/settings/api-keys") {
+    return ok(clone(state.apiKeys)) as T;
+  }
+
+  if (method === "POST" && path === "/settings/api-keys") {
+    const payload = (body ?? {}) as { name?: string; value?: string };
+    const name = (payload.name ?? "").trim();
+    const value = (payload.value ?? "").trim();
+    if (!name || !value) {
+      throw new Error("API Error: 400 Bad Request");
+    }
+    const masked = value.length <= 8 ? "***" : `${value.slice(0, 3)}...${value.slice(-4)}`;
+    const key: ApiKey = {
+      id: crypto.randomUUID(),
+      name,
+      value: masked,
+      lastUsed: null,
+    };
+    state.apiKeys.unshift(key);
+    return ok(clone(key)) as T;
+  }
+
+  const settingsKeyMatch = path.match(/^\/settings\/api-keys\/([^/]+)$/);
+  if (method === "DELETE" && settingsKeyMatch) {
+    const keyId = settingsKeyMatch[1];
+    const before = state.apiKeys.length;
+    state.apiKeys = state.apiKeys.filter((k) => k.id !== keyId);
+    if (before === state.apiKeys.length) notFound();
+    return ok(null) as T;
+  }
+
+  if (method === "GET" && path === "/settings/defaults") {
+    return ok(clone(state.defaults)) as T;
+  }
+
+  if (method === "PUT" && path === "/settings/defaults") {
+    const payload = (body ?? {}) as Partial<Defaults>;
+    state.defaults = {
+      ...state.defaults,
+      ...Object.fromEntries(
+        Object.entries(payload).map(([k, v]) => [k, v == null ? "" : String(v)])
+      ),
+    };
+    return ok(clone(state.defaults)) as T;
   }
 
   if (method === "GET" && path === "/runs/compare") {
