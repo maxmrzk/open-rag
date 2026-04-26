@@ -99,12 +99,16 @@ services:
       DATABASE_URL: postgresql+asyncpg://postgres:password@postgres:5432/ragbuilder
       REDIS_URL: redis://redis:6379/0
       SECRET_FERNET_KEY: ${SECRET_FERNET_KEY:-}
+      RAG_EVAL_RUNTIME_IMAGE: ${RAG_EVAL_RUNTIME_IMAGE:-python:3.11-slim}
+      RAG_EVAL_RUNTIME_TIMEOUT_SEC: ${RAG_EVAL_RUNTIME_TIMEOUT_SEC:-120}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - rag-network
 

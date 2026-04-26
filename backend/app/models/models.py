@@ -159,6 +159,14 @@ class EvaluationRun(Base):
     metric_cost_usd: Mapped[float | None] = mapped_column(Double, nullable=True)
     metric_hallucination: Mapped[float | None] = mapped_column(Double, nullable=True)
 
+    # Detailed persisted execution outputs
+    result_output: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    retrieval_trace: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+    metrics_detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

@@ -27,6 +27,12 @@ export const EvaluationRunSchema = z.object({
   metrics: MetricsSchema,
   configSnapshot: z.record(z.unknown()),
   status: RunStatusSchema,
+  errorMessage: z.string().nullish(),
+  output: z.record(z.unknown()).nullish(),
+  retrievalTrace: z.array(z.record(z.unknown())).default([]),
+  metricsDetail: z.record(z.unknown()).default({}),
+  startedAt: TimestampSchema.nullish(),
+  completedAt: TimestampSchema.nullish(),
   createdAt: TimestampSchema,
 });
 

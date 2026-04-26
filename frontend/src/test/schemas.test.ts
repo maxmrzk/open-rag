@@ -134,9 +134,18 @@ const validRun = {
   id: "550e8400-e29b-41d4-a716-446655440000",
   systemId: "550e8400-e29b-41d4-a716-446655440001",
   systemName: "My System",
+  projectId: "550e8400-e29b-41d4-a716-446655440002",
+  projectName: "My Project",
+  promptInput: "What is RAG?",
   metrics: validMetrics,
   configSnapshot: { "node-1": { chunkSize: 512 } },
   status: "completed" as const,
+  errorMessage: null,
+  output: { answer: "ok" },
+  retrievalTrace: [{ id: "doc-1", score: 0.9 }],
+  metricsDetail: { relevantCount: 8 },
+  startedAt: "2024-01-15T10:29:58Z",
+  completedAt: "2024-01-15T10:30:00Z",
   createdAt: "2024-01-15T10:30:00Z",
 };
 
@@ -200,6 +209,9 @@ describe("EvaluationRunSchema", () => {
         costUsd: 0,
         hallucinationScore: 0,
       },
+      output: null,
+      retrievalTrace: [],
+      metricsDetail: {},
     };
     const r = EvaluationRunSchema.parse(runningRun);
     expect(r.status).toBe("running");
