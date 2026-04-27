@@ -18,11 +18,7 @@ def normalize_graph(nodes: list[dict], edges: list[dict]) -> dict:
     node_by_id = {n["id"]: n for n in nodes}
 
     unsupported = sorted(
-        {
-            str(n.get("type"))
-            for n in nodes
-            if str(n.get("type")) not in SUPPORTED_NODE_TYPES
-        }
+        {str(n.get("type")) for n in nodes if str(n.get("type")) not in SUPPORTED_NODE_TYPES}
     )
     if unsupported:
         raise ValueError(f"Unsupported node type(s): {', '.join(unsupported)}")

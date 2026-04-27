@@ -26,9 +26,7 @@ function renderWithProviders(ui: React.ReactElement) {
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   return render(
-    createElement(MemoryRouter, {},
-      createElement(QueryClientProvider, { client: queryClient }, ui)
-    )
+    createElement(MemoryRouter, {}, createElement(QueryClientProvider, { client: queryClient }, ui))
   );
 }
 
@@ -125,5 +123,16 @@ describe("EvaluationsPage", () => {
     await waitFor(() => {
       expect(screen.getByText("Metrics Comparison")).toBeInTheDocument();
     });
+  });
+
+  it("expands row details to show output and retrieval trace", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<EvaluationsPage />);
+
+    await user.click(screen.getAllByLabelText("Expand run details")[0]);
+
+    expect(screen.getByText("Output")).toBeInTheDocument();
+    expect(screen.getByText("Retrieval Trace")).toBeInTheDocument();
+    expect(screen.getByText("Download JSON")).toBeInTheDocument();
   });
 });

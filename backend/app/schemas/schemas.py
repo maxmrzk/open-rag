@@ -192,6 +192,12 @@ class EvaluationRunOut(BaseModel):
     metrics: MetricsOut
     configSnapshot: dict[str, Any]
     status: str
+    errorMessage: str | None = None
+    output: dict[str, Any] | None = None
+    retrievalTrace: list[dict[str, Any]] = []
+    metricsDetail: dict[str, Any] = {}
+    startedAt: datetime | None = None
+    completedAt: datetime | None = None
     createdAt: datetime
 
 

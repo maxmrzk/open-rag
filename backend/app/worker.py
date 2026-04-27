@@ -10,12 +10,12 @@ from datetime import UTC, datetime
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from app.core.config import get_settings
+from app.core.database import AsyncSessionLocal
 from app.evaluation.docker_runtime import execute_dockerized_run
 from app.evaluation.graph import normalize_graph
 from app.evaluation.metrics import compute_metrics
 from app.evaluation.resolver import env_from_graph, resolve_api_keys
-from app.core.config import get_settings
-from app.core.database import AsyncSessionLocal
 from app.models.models import EvaluationRun, SystemDefinition
 
 settings = get_settings()

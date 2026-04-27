@@ -29,11 +29,16 @@ export function EvaluationsPage() {
   const [selectedSystemId, setSelectedSystemId] = useState<string>(initialSystemId);
   const { data: allSystems } = useAllSystems();
 
-  const { data: systemRuns, isLoading: isSystemRunsLoading, isError: isSystemRunsError } = useRuns(
-    selectedSystemId || undefined,
-    { refetchInterval: 3000 }
-  );
-  const { data: allRuns, isLoading: isAllRunsLoading, isError: isAllRunsError } = useAllRuns({
+  const {
+    data: systemRuns,
+    isLoading: isSystemRunsLoading,
+    isError: isSystemRunsError,
+  } = useRuns(selectedSystemId || undefined, { refetchInterval: 3000 });
+  const {
+    data: allRuns,
+    isLoading: isAllRunsLoading,
+    isError: isAllRunsError,
+  } = useAllRuns({
     refetchInterval: 3000,
   });
   const runs = selectedSystemId ? systemRuns : allRuns;
@@ -96,7 +101,8 @@ export function EvaluationsPage() {
   };
 
   const selectedRuns = useMemo(() => {
-    if (selectedRunIds.length < 2) return completedRuns.filter((r) => selectedRunIds.includes(r.id));
+    if (selectedRunIds.length < 2)
+      return completedRuns.filter((r) => selectedRunIds.includes(r.id));
     if (comparedRuns?.length) return comparedRuns;
     return completedRuns.filter((r) => selectedRunIds.includes(r.id));
   }, [completedRuns, selectedRunIds, comparedRuns]);

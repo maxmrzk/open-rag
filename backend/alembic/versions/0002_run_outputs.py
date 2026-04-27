@@ -20,10 +20,16 @@ depends_on: str | Sequence[str] | None = None
 
 def upgrade() -> None:
     op.add_column("evaluation_runs", sa.Column("result_output", postgresql.JSONB(), nullable=True))
-    op.add_column("evaluation_runs", sa.Column("retrieval_trace", postgresql.JSONB(), nullable=True))
+    op.add_column(
+        "evaluation_runs", sa.Column("retrieval_trace", postgresql.JSONB(), nullable=True)
+    )
     op.add_column("evaluation_runs", sa.Column("metrics_detail", postgresql.JSONB(), nullable=True))
-    op.add_column("evaluation_runs", sa.Column("started_at", sa.DateTime(timezone=True), nullable=True))
-    op.add_column("evaluation_runs", sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True))
+    op.add_column(
+        "evaluation_runs", sa.Column("started_at", sa.DateTime(timezone=True), nullable=True)
+    )
+    op.add_column(
+        "evaluation_runs", sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True)
+    )
 
 
 def downgrade() -> None:

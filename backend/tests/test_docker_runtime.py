@@ -43,7 +43,9 @@ class _FakeDockerClient:
 
     def run(self, image, command, detach, working_dir, volumes, environment):
         host_path = next(iter(volumes.keys()))
-        return _FakeContainer(Path(host_path), status_code=self._status_code, logs_text=self._logs_text)
+        return _FakeContainer(
+            Path(host_path), status_code=self._status_code, logs_text=self._logs_text
+        )
 
     def close(self):
         return None
