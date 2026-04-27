@@ -1,56 +1,75 @@
-import { useState, useMemo } from "react";
-import {
-  ArrowUpDown,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  GitCompareArrows,
-  Layers,
-} from "lucide-react";
-import { useRuns, useAllRuns } from "../../hooks/useRuns";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
+import { useAllRuns, useRunComparison, useRuns } from "../../hooks/useRuns";
 import { useAllSystems } from "../../hooks/useSystems";
-import type { EvaluationRun } from "../../types";
 import { MetricsComparisonChart } from "./metrics-chart";
+import { EvaluationsToolbar } from "./evaluations-toolbar";
+import { EvaluationsTable } from "./evaluations-table";
 
-const metricLabels: Record<string, string> = {
-  precision: "Precision",
-  recall: "Recall",
-  mrr: "MRR",
-  latencyMs: "Latency (ms)",
-  tokenUsage: "Token Usage",
-  costUsd: "Cost (USD)",
-  hallucinationScore: "Halluc. Score",
-};
-
-const statusConfig = {
-  completed: { icon: CheckCircle2, color: "text-green-400", bg: "bg-green-400/10" },
-  running: { icon: Clock, color: "text-amber-400", bg: "bg-amber-400/10" },
-  failed: { icon: AlertCircle, color: "text-red-400", bg: "bg-red-400/10" },
-};
+type SortField =
+  | "createdAt"
+  | "precision"
+  | "recall"
+  | "mrr"
+  | "latencyMs"
+  | "tokenUsage"
+  | "costUsd"
+  | "hallucinationScore";
 
 export function EvaluationsPage() {
-  const [selectedSystemId, setSelectedSystemId] = useState<string>("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialSystemId = searchParams.get("systemId") ?? "";
+  const initialSortField = (searchParams.get("sort") as SortField | null) ?? "createdAt";
+  const initialSortDir = (searchParams.get("dir") as "asc" | "desc" | null) ?? "desc";
+  const initialSelected = (searchParams.get("selected") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const [selectedSystemId, setSelectedSystemId] = useState<string>(initialSystemId);
   const { data: allSystems } = useAllSystems();
 
-  // When a system is selected, use system-scoped hook; otherwise load all runs
-  const { data: systemRuns } = useRuns(selectedSystemId || undefined);
-  const { data: allRuns } = useAllRuns();
+  const {
+    data: systemRuns,
+    isLoading: isSystemRunsLoading,
+    isError: isSystemRunsError,
+  } = useRuns(selectedSystemId || undefined, { refetchInterval: 3000 });
+  const {
+    data: allRuns,
+    isLoading: isAllRunsLoading,
+    isError: isAllRunsError,
+  } = useAllRuns({
+    refetchInterval: 3000,
+  });
   const runs = selectedSystemId ? systemRuns : allRuns;
+  const isRunsLoading = selectedSystemId ? isSystemRunsLoading : isAllRunsLoading;
+  const isRunsError = selectedSystemId ? isSystemRunsError : isAllRunsError;
 
-  const [selectedRunIds, setSelectedRunIds] = useState<string[]>([]);
-  const [sortField, setSortField] = useState<string>("createdAt");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [selectedRunIds, setSelectedRunIds] = useState<string[]>(initialSelected);
+  const [sortField, setSortField] = useState<SortField>(initialSortField);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">(initialSortDir);
 
-  // Group systems by project for <optgroup>
-  const systemsByProject = allSystems?.reduce<
-    Record<string, { projectName: string; systems: typeof allSystems }>
-  >((acc, sys) => {
-    if (!acc[sys.projectId]) acc[sys.projectId] = { projectName: sys.projectName, systems: [] };
-    acc[sys.projectId].systems.push(sys);
-    return acc;
-  }, {});
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    if (selectedSystemId) next.set("systemId", selectedSystemId);
+    else next.delete("systemId");
+    next.set("sort", sortField);
+    next.set("dir", sortDir);
+    if (selectedRunIds.length) next.set("selected", selectedRunIds.join(","));
+    else next.delete("selected");
+    setSearchParams(next, { replace: true });
+  }, [selectedSystemId, sortField, sortDir, selectedRunIds, searchParams, setSearchParams]);
 
   const completedRuns = useMemo(() => (runs || []).filter((r) => r.status === "completed"), [runs]);
+
+  const [baselineId, comparedIds] = useMemo(() => {
+    if (selectedRunIds.length < 2) return [undefined, [] as string[]];
+    return [selectedRunIds[0], selectedRunIds.slice(1)];
+  }, [selectedRunIds]);
+
+  const { data: comparedRuns } = useRunComparison(baselineId, comparedIds, {
+    refetchInterval: 3000,
+  });
 
   const sortedRuns = useMemo(() => {
     const sorted = [...(runs || [])].sort((a, b) => {
@@ -59,14 +78,14 @@ export function EvaluationsPage() {
           ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       }
-      const aVal = (a.metrics as any)[sortField] ?? 0;
-      const bVal = (b.metrics as any)[sortField] ?? 0;
+      const aVal = a.metrics[sortField as Exclude<SortField, "createdAt">] ?? 0;
+      const bVal = b.metrics[sortField as Exclude<SortField, "createdAt">] ?? 0;
       return sortDir === "desc" ? bVal - aVal : aVal - bVal;
     });
     return sorted;
   }, [runs, sortField, sortDir]);
 
-  const toggleSort = (field: string) => {
+  const toggleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
@@ -81,14 +100,20 @@ export function EvaluationsPage() {
     );
   };
 
-  const selectedRuns = useMemo(
-    () => completedRuns.filter((r) => selectedRunIds.includes(r.id)),
-    [completedRuns, selectedRunIds]
-  );
+  const selectedRuns = useMemo(() => {
+    if (selectedRunIds.length < 2)
+      return completedRuns.filter((r) => selectedRunIds.includes(r.id));
+    if (comparedRuns?.length) return comparedRuns;
+    return completedRuns.filter((r) => selectedRunIds.includes(r.id));
+  }, [completedRuns, selectedRunIds, comparedRuns]);
+
+  const handleSystemChange = (value: string) => {
+    setSelectedSystemId(value);
+    setSelectedRunIds([]);
+  };
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto">
-      {/* Header */}
       <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
         <div>
           <h1 className="text-[22px] text-white tracking-tight">Evaluations</h1>
@@ -97,40 +122,26 @@ export function EvaluationsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-4 flex-wrap">
-          {/* System filter */}
-          <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-cyan-400 shrink-0" />
-            <select
-              value={selectedSystemId}
-              onChange={(e) => setSelectedSystemId(e.target.value)}
-              className="px-3 py-1.5 rounded-lg bg-[#161b22] border border-[#21262d] text-[12px] text-white focus:outline-none focus:border-indigo-500 min-w-[220px]"
-            >
-              <option value="">All Systems</option>
-              {Object.values(systemsByProject ?? {}).map(({ projectName, systems }) => (
-                <optgroup key={projectName} label={projectName}>
-                  {systems.map((sys) => (
-                    <option key={sys.id} value={sys.id}>
-                      {sys.name} (v{sys.version})
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </div>
-
-          {selectedRunIds.length >= 2 && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-              <GitCompareArrows className="w-4 h-4 text-indigo-400" />
-              <span className="text-[12px] text-indigo-300">
-                {selectedRunIds.length} runs selected for comparison
-              </span>
-            </div>
-          )}
-        </div>
+        <EvaluationsToolbar
+          selectedSystemId={selectedSystemId}
+          systems={allSystems}
+          selectedRunCount={selectedRunIds.length}
+          onSystemChange={handleSystemChange}
+        />
       </div>
 
-      {/* Comparison Chart */}
+      {isRunsLoading && (
+        <div className="bg-[#0d1117] border border-[#21262d] rounded-xl p-10 text-center text-[13px] text-[#8b949e] mb-6">
+          Loading evaluation runs...
+        </div>
+      )}
+
+      {isRunsError && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-5 mb-6">
+          <div className="text-[12px] text-red-300">Failed to load evaluation runs.</div>
+        </div>
+      )}
+
       {selectedRuns.length >= 2 && (
         <div className="mb-6 bg-[#0d1117] border border-[#21262d] rounded-xl p-5">
           <h3 className="text-[14px] text-white mb-4">Metrics Comparison</h3>
@@ -138,116 +149,15 @@ export function EvaluationsPage() {
         </div>
       )}
 
-      {/* Runs Table */}
-      <div className="bg-[#0d1117] border border-[#21262d] rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-[#21262d]">
-                <th className="px-4 py-3 w-10">
-                  <span className="sr-only">Select</span>
-                </th>
-                <th className="px-4 py-3 text-[11px] text-[#8b949e] uppercase tracking-wider">
-                  System / Project
-                </th>
-                <th className="px-4 py-3 text-[11px] text-[#8b949e] uppercase tracking-wider">
-                  Status
-                </th>
-                {Object.entries(metricLabels).map(([key, label]) => (
-                  <th
-                    key={key}
-                    className="px-4 py-3 text-[11px] text-[#8b949e] uppercase tracking-wider cursor-pointer hover:text-white transition-colors whitespace-nowrap"
-                    onClick={() => toggleSort(key)}
-                  >
-                    <div className="flex items-center gap-1">
-                      {label}
-                      {sortField === key && <ArrowUpDown className="w-3 h-3" />}
-                    </div>
-                  </th>
-                ))}
-                <th
-                  className="px-4 py-3 text-[11px] text-[#8b949e] uppercase tracking-wider cursor-pointer hover:text-white"
-                  onClick={() => toggleSort("createdAt")}
-                >
-                  <div className="flex items-center gap-1">
-                    Date
-                    {sortField === "createdAt" && <ArrowUpDown className="w-3 h-3" />}
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedRuns.map((run) => {
-                const status = statusConfig[run.status];
-                const StatusIcon = status.icon;
-                const isSelected = selectedRunIds.includes(run.id);
-
-                return (
-                  <tr
-                    key={run.id}
-                    className={`border-b border-[#21262d] last:border-0 hover:bg-[#161b22] transition-colors ${
-                      isSelected ? "bg-indigo-500/5" : ""
-                    }`}
-                  >
-                    <td className="px-4 py-3">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleRunSelection(run.id)}
-                        disabled={run.status !== "completed"}
-                        className="w-3.5 h-3.5 rounded border-[#30363d] bg-[#161b22] accent-indigo-500 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="text-[12px] text-white">{run.systemName}</div>
-                      <div className="text-[10px] text-[#484f58] font-mono mt-0.5">
-                        {run.projectName && (
-                          <span className="text-[10px] text-indigo-400/70">
-                            {run.projectName} ·{" "}
-                          </span>
-                        )}
-                        {run.id.slice(0, 12)}…
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] ${status.bg} ${status.color}`}
-                      >
-                        <StatusIcon className="w-3 h-3" />
-                        {run.status}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-[12px] text-[#c9d1d9] font-mono">
-                      {run.status === "completed" ? run.metrics.precision.toFixed(2) : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-[12px] text-[#c9d1d9] font-mono">
-                      {run.status === "completed" ? run.metrics.recall.toFixed(2) : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-[12px] text-[#c9d1d9] font-mono">
-                      {run.status === "completed" ? run.metrics.mrr.toFixed(2) : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-[12px] text-[#c9d1d9] font-mono">
-                      {run.status === "completed" ? `${run.metrics.latencyMs}` : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-[12px] text-[#c9d1d9] font-mono">
-                      {run.status === "completed" ? run.metrics.tokenUsage.toLocaleString() : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-[12px] text-[#c9d1d9] font-mono">
-                      {run.status === "completed" ? `$${run.metrics.costUsd.toFixed(3)}` : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-[12px] text-[#c9d1d9] font-mono">
-                      {run.status === "completed" ? run.metrics.hallucinationScore.toFixed(2) : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-[11px] text-[#8b949e] whitespace-nowrap">
-                      {new Date(run.createdAt).toLocaleString()}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {!isRunsLoading && !isRunsError && (
+        <EvaluationsTable
+          runs={sortedRuns}
+          sortField={sortField}
+          onToggleSort={toggleSort}
+          selectedRunIds={selectedRunIds}
+          onToggleRunSelection={toggleRunSelection}
+        />
+      )}
     </div>
   );
 }

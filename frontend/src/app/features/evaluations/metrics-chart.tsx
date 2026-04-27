@@ -13,12 +13,12 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import type { EvaluationRun } from "../../types";
+import type { EvaluationRunOutput } from "../../api/schemas/run.schema";
 
 const COLORS = ["#818cf8", "#34d399", "#f59e0b", "#f472b6", "#22d3ee"];
 
 interface MetricsComparisonChartProps {
-  runs: EvaluationRun[];
+  runs: EvaluationRunOutput[];
 }
 
 export function MetricsComparisonChart({ runs }: MetricsComparisonChartProps) {
@@ -27,7 +27,7 @@ export function MetricsComparisonChart({ runs }: MetricsComparisonChartProps) {
   const radarData = radarMetrics.map((metric) => {
     const item: Record<string, unknown> = { metric: metric.toUpperCase() };
     runs.forEach((run, i) => {
-      item[`run${i}`] = (run.metrics as any)[metric];
+      item[`run${i}`] = run.metrics[metric as "precision" | "recall" | "mrr"];
     });
     return item;
   });

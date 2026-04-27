@@ -32,6 +32,12 @@ def _run_to_dict(
         },
         "configSnapshot": {k: v for k, v in snapshot.items() if not k.startswith("_")},
         "status": run.status,
+        "errorMessage": run.error_message,
+        "output": run.result_output,
+        "retrievalTrace": run.retrieval_trace or [],
+        "metricsDetail": run.metrics_detail or {},
+        "startedAt": run.started_at,
+        "completedAt": run.completed_at,
         "createdAt": run.created_at,
     }
 

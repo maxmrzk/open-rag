@@ -50,15 +50,21 @@ export const useCreateRun = (systemId: string) => {
   });
 };
 
-export const useRunComparison = (baselineId?: string, comparedIds?: string[]) => {
+export const useRunComparison = (
+  baselineId?: string,
+  comparedIds?: string[],
+  options?: { refetchInterval?: number | false }
+) => {
   const params =
     comparedIds && comparedIds.length > 0
-      ? comparedIds.map((id) => `compared=${id}`).join("&")
+      ? comparedIds.map((id) => `compared=${encodeURIComponent(id)}`).join("&")
       : "";
+  const baselineParam = baselineId ? encodeURIComponent(baselineId) : "";
   return useApiQuery({
     queryKey: ["run-comparison", baselineId ?? "", ...(comparedIds ?? [])],
-    url: `/runs/compare?baseline=${baselineId}&${params}`,
+    url: `/runs/compare?baseline=${baselineParam}&${params}`,
     schema: EvaluationRunListSchema,
     enabled: !!baselineId && (comparedIds?.length ?? 0) > 0,
+    refetchInterval: options?.refetchInterval,
   });
 };

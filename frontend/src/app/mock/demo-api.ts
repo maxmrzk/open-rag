@@ -59,6 +59,12 @@ type Run = {
   status: "completed" | "running" | "failed";
   createdAt: string;
   promptInput?: string | null;
+  errorMessage?: string | null;
+  output?: Record<string, unknown> | null;
+  retrievalTrace?: Record<string, unknown>[];
+  metricsDetail?: Record<string, unknown>;
+  startedAt?: string | null;
+  completedAt?: string | null;
 };
 
 type DemoState = {
@@ -157,6 +163,12 @@ function enrichRun(run: Run) {
     ...run,
     projectId: project?.id ?? null,
     projectName: project?.name ?? "",
+    errorMessage: run.errorMessage ?? null,
+    output: run.output ?? null,
+    retrievalTrace: run.retrievalTrace ?? [],
+    metricsDetail: run.metricsDetail ?? {},
+    startedAt: run.startedAt ?? null,
+    completedAt: run.completedAt ?? null,
   };
 }
 
@@ -296,6 +308,12 @@ export async function handleDemoApiRequest<T>(
       },
       configSnapshot: { source: "demo" },
       status: "running",
+      errorMessage: null,
+      output: null,
+      retrievalTrace: [],
+      metricsDetail: {},
+      startedAt: nowIso(),
+      completedAt: null,
       createdAt: nowIso(),
     };
 

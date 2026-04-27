@@ -74,6 +74,12 @@ class TestRunToDict:
             "metrics",
             "configSnapshot",
             "status",
+            "errorMessage",
+            "output",
+            "retrievalTrace",
+            "metricsDetail",
+            "startedAt",
+            "completedAt",
             "createdAt",
         }
 

@@ -86,6 +86,12 @@ export interface EvaluationRun {
   metrics: Metrics;
   configSnapshot: Record<string, unknown>;
   status: "completed" | "running" | "failed";
+  errorMessage?: string | null;
+  output?: Record<string, unknown> | null;
+  retrievalTrace?: Record<string, unknown>[];
+  metricsDetail?: Record<string, unknown>;
+  startedAt?: string | null;
+  completedAt?: string | null;
   createdAt: string;
 }
 
