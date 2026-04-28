@@ -474,6 +474,9 @@ export function LandingPage() {
                     sidecar into a single installer. No Docker, no Node, no prior setup needed —
                     just download and run.
                   </p>
+                  <div className="mt-2 text-[11px] text-amber-300/80">
+                    Early development: not all features are implemented yet.
+                  </div>
                 </div>
               </div>
 

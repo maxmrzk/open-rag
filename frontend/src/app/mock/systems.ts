@@ -1,7 +1,7 @@
 import type { SystemDefinition } from "../types";
 
 export const mockSystemDefinition: SystemDefinition = {
-  id: "sys-001-uuid-aaaa-bbbb-ccccddddeeee",
+  id: "11111111-1111-4111-8111-111111111111",
   projectId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   name: "Hybrid RAG v2",
   version: 2,
@@ -137,7 +137,7 @@ export const mockSystemDefinition: SystemDefinition = {
 export const mockSystems: SystemDefinition[] = [
   mockSystemDefinition,
   {
-    id: "sys-002-uuid-aaaa-bbbb-ccccddddeeee",
+    id: "22222222-2222-4222-8222-222222222222",
     projectId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     name: "Vector-Only RAG v1",
     version: 1,

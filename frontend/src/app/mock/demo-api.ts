@@ -46,6 +46,9 @@ type Run = {
   id: string;
   systemId: string;
   systemName: string;
+  projectId?: string | null;
+  projectName?: string;
+  promptInput?: string | null;
   metrics: {
     precision: number;
     recall: number;
@@ -58,7 +61,6 @@ type Run = {
   configSnapshot: Record<string, unknown>;
   status: "completed" | "running" | "failed";
   createdAt: string;
-  promptInput?: string | null;
   errorMessage?: string | null;
   output?: Record<string, unknown> | null;
   retrievalTrace?: Record<string, unknown>[];
